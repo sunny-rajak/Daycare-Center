@@ -1,0 +1,19 @@
+@import "tailwindcss";
+
+@theme {
+  /* Soft, child-friendly color palette */
+  --color-brand-blue: #3abef9;
+  --color-brand-yellow: #ffd35c;
+  --color-brand-green: #a7d397;
+  --color-brand-pink: #fba1b7;
+
+  /* Smooth rounded corners for a friendly feel */
+  --radius-xl: 1.5rem;
+  --radius-2xl: 2rem;
+}
+
+/* Optional: Set a nice font for the whole app */
+:root {
+  font-family: "Quicksand", sans-serif;
+  background-color: #ffffff;
+}
