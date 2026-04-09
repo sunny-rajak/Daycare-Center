@@ -1,45 +1,45 @@
+import { Link } from "react-scroll";
+
 export default function Hero() {
   return (
-    <section className="bg-orange-50/40 min-h-[85vh] flex items-center px-8 lg:px-24 py-12">
-      <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-        {/* Left Side: Content */}
-        <div>
-          <span className="text-brand-blue font-bold tracking-widest uppercase text-sm">
-            Welcome to Ecera Stay & Care LLC
-          </span>
-          <h1 className="text-6xl md:text-7xl font-black text-gray-800 mt-4 leading-[1.1]">
-            Where Every Child <span className="text-brand-yellow">Shines</span>{" "}
-            Bright.
+    <section id="hero" className="pt-32 pb-20 bg-[#fdfaf1]">
+      <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        <div className="space-y-8">
+          <h1 className="text-6xl md:text-7xl font-extrabold text-[#1a2e44] leading-tight">
+            Where Every <br />
+            <span className="text-[#38bdf8]">Child Shines.</span>
           </h1>
-          <p className="text-gray-600 mt-8 text-xl leading-relaxed max-w-lg">
-            Providing a nurturing, safe, and fun environment for children to
-            learn and grow through play-based curriculum in Farmington Hills.
+
+          <p className="text-lg text-gray-500 max-w-md leading-relaxed">
+            Safe, nurturing, and fun-filled daycare services for your little
+            ones. We focus on growth, creativity, and early learning.
           </p>
-          <div className="mt-12 flex flex-wrap gap-5">
-            <button className="bg-brand-blue text-white px-10 py-4 rounded-full font-bold text-lg shadow-xl hover:bg-sky-500 transition-all">
+
+          <div className="flex gap-4">
+            <Link
+              to="inquiry"
+              smooth={true}
+              className="px-8 py-4 bg-[#38bdf8] text-white font-bold rounded-full shadow-lg shadow-blue-100 hover:brightness-105 transition-all cursor-pointer"
+            >
               Book a Tour
-            </button>
-            <button className="border-2 border-brand-blue text-brand-blue px-10 py-4 rounded-full font-bold text-lg hover:bg-brand-blue/5 transition-all flex items-center gap-2 active:scale-95">
-              <span>View Gallery</span>
-              <span className="text-xl">📸</span>
+            </Link>
+            <button className="px-8 py-4 bg-white text-gray-600 font-bold rounded-full border-2 border-amber-100 hover:bg-amber-50 transition-all">
+              View Gallery
             </button>
           </div>
         </div>
 
-        {/* Right Side: Rotated Image Component */}
         <div className="relative">
-          {/* Main Image Card */}
-          <div className="w-full aspect-square bg-brand-blue rounded-[3rem] overflow-hidden shadow-2xl rotate-3 transition-transform hover:rotate-0 duration-500">
-            <img
-              src="https://images.unsplash.com/photo-1516627145497-ae6968895b74?q=80&w=800"
-              alt="Happy children at Ecera Stay and Care"
-              className="w-full h-full object-cover -rotate-3 scale-110 group-hover:rotate-0 transition-all"
-            />
+          {/* Recreating the rounded image look from your screenshot */}
+          <div className="aspect-square bg-white p-4 rounded-[3rem] shadow-xl rotate-3">
+            <div className="w-full h-full rounded-[2.5rem] bg-gray-100 overflow-hidden">
+              <img
+                src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=1000"
+                alt="Children playing"
+                className="w-full h-full object-cover"
+              />
+            </div>
           </div>
-
-          {/* Floating Decorative Elements */}
-          <div className="absolute -top-6 -right-6 w-24 h-24 bg-brand-yellow rounded-full -z-10 animate-pulse"></div>
-          <div className="absolute -bottom-8 -left-8 w-32 h-32 bg-brand-pink/20 rounded-full -z-10 blur-xl"></div>
         </div>
       </div>
     </section>

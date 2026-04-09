@@ -1,51 +1,67 @@
+import { Link } from "react-scroll";
+
 export default function Programs() {
-  const cards = [
+  const programs = [
     {
-      title: "Infants",
-      age: "3-12 Months",
-      color: "bg-brand-blue",
-      icon: "🍼",
+      name: "Infant",
+      age: "3m - 15m",
+      color: "bg-blue-100 text-blue-500",
+      desc: "A cozy space for sensory play and stable routines.",
     },
     {
-      title: "Toddlers",
-      age: "1-3 Years",
-      color: "bg-brand-yellow",
-      icon: "🎨",
+      name: "Toddler",
+      age: "16m - 33m",
+      color: "bg-amber-100 text-amber-600",
+      desc: "Focusing on language, social skills, and motor exploration.",
     },
     {
-      title: "Preschool",
-      age: "3-5 Years",
-      color: "bg-brand-green",
-      icon: "📚",
+      name: "Preschool",
+      age: "33m - 5y",
+      color: "bg-pink-100 text-pink-500",
+      desc: "Preparing little stars for kindergarten with fun learning.",
     },
   ];
 
   return (
-    <section id="programs" className="py-24 px-6 bg-white">
-      <div className="max-w-7xl mx-auto text-center">
-        <h2 className="text-4xl font-black text-gray-800">Our Programs</h2>
-        <p className="mt-4 text-gray-500 max-w-xl mx-auto">
-          We provide a balanced curriculum that nurtures your child's physical,
-          emotional, and cognitive development.
-        </p>
+    <section
+      id="programs"
+      className="py-24 bg-[#fdfaf1] rounded-[4rem] mx-4 shadow-inner"
+    >
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-extrabold text-[#1a2e44] mb-4 tracking-tight">
+            Our Programs
+          </h2>
+          <div className="w-20 h-1.5 bg-[#38bdf8] mx-auto rounded-full"></div>
+        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
-          {cards.map((card, index) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {programs.map((p) => (
             <div
-              key={index}
-              className="group p-8 rounded-2xl border-2 border-transparent hover:border-brand-blue/20 hover:shadow-xl transition-all bg-gray-50/50 cursor-default"
+              key={p.name}
+              className="bg-white p-10 rounded-[3rem] shadow-lg shadow-gray-200/50 hover:-translate-y-2 transition-all"
             >
               <div
-                className={`${card.color} w-16 h-16 rounded-xl flex items-center justify-center text-3xl mb-6 mx-auto group-hover:scale-110 transition-transform`}
+                className={`w-14 h-14 ${p.color} rounded-2xl flex items-center justify-center text-2xl font-bold mb-8`}
               >
-                {card.icon}
+                {p.name[0]}
               </div>
-              <h3 className="text-2xl font-bold text-gray-800">{card.title}</h3>
-              <p className="text-brand-blue font-bold mt-1">{card.age}</p>
-              <p className="mt-4 text-gray-600 leading-relaxed">
-                Exploring the world through sensory play, music, and gentle
-                interaction in a safe space.
+              <h3 className="text-3xl font-extrabold text-[#1a2e44] mb-2">
+                {p.name}
+              </h3>
+              <p className="text-sm font-bold uppercase tracking-widest text-[#38bdf8] mb-6">
+                {p.age}
               </p>
+              <p className="text-gray-500 font-medium mb-8 leading-relaxed">
+                {p.desc}
+              </p>
+              <Link
+                to="inquiry"
+                smooth={true}
+                className="inline-block px-6 py-3 bg-[#38bdf8] text-white font-bold rounded-full hover:brightness-105 cursor-pointer transition-all"
+              >
+                Select Program
+              </Link>
             </div>
           ))}
         </div>

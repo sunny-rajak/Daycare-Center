@@ -1,0 +1,47 @@
+import axios from "axios";
+
+const API_URL = "http://localhost:5000/api/inquiry";
+const USERS_API_URL = "http://localhost:5000/api/users";
+
+const getAuthConfig = () => {
+  const token = JSON.parse(localStorage.getItem("ecera_user"))?.token;
+  if (!token) return {};
+  return {
+    headers: { Authorization: `Bearer ${token}` },
+  };
+};
+
+export const getAllInquiries = async () => {
+  const response = await axios.get(`${API_URL}/all`, getAuthConfig());
+  return response.data;
+};
+
+export const updateStatus = async (id, status) => {
+  const response = await axios.put(
+    `${API_URL}/${id}/status`,
+    { status },
+    getAuthConfig(),
+  );
+  return response.data;
+};
+
+export const deleteInquiry = async (id) => {
+  const response = await axios.delete(`${API_URL}/${id}`, getAuthConfig());
+  return response.data;
+};
+
+export const registerStaff = async (staffData) => {
+  const payload = Object.entries(staffData).reduce((acc, [key, value]) => {
+    if (value !== "" && value !== null && value !== undefined) {
+      acc[key] = value;
+    }
+    return acc;
+  }, {});
+
+  const response = await axios.post(
+    `${USERS_API_URL}/register`,
+    payload,
+    getAuthConfig(),
+  );
+  return response.data;
+};
