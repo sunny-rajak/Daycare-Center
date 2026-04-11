@@ -28,6 +28,7 @@ if (process.env.NODE_ENV === "development") {
 // Routes
 app.use("/api/inquiry", require("./routes/inquiryRoutes"));
 app.use("/api/users", require("./routes/userRoutes"));
+app.use("/api/classes", require("./routes/classRoutes"));
 
 // Error Middleware (Must be after routes)
 app.use(notFound);

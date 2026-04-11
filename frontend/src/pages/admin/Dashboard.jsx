@@ -6,7 +6,10 @@ import {
   updateStatus,
   deleteInquiry,
   registerStaff,
+  enrollChild,
+  getClasses,
 } from "../../api/inquiryApi";
+import ClassManager from "../../components/ClassManager";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
@@ -42,6 +45,13 @@ export default function Dashboard() {
   const [staffLoading, setStaffLoading] = useState(false);
   const [staffMessage, setStaffMessage] = useState({ type: "", text: "" });
 
+  // Enrollment modal state
+  const [showEnrollModal, setShowEnrollModal] = useState(false);
+  const [selectedInquiry, setSelectedInquiry] = useState(null);
+  const [classes, setClasses] = useState([]);
+  const [selectedClassId, setSelectedClassId] = useState("");
+  const [enrollLoading, setEnrollLoading] = useState(false);
+
   useEffect(() => {
     const fetchInquiries = async () => {
       setLoading(true);
@@ -67,7 +77,17 @@ export default function Dashboard() {
       }
     };
 
+    const fetchClasses = async () => {
+      try {
+        const response = await getClasses();
+        setClasses(response?.data || []);
+      } catch (err) {
+        console.error("Failed to fetch classes:", err);
+      }
+    };
+
     fetchInquiries();
+    fetchClasses();
   }, []);
 
   const handleLogout = () => {
@@ -136,6 +156,41 @@ export default function Dashboard() {
     }
   };
 
+  const handleEnrollClick = (inquiry) => {
+    setSelectedInquiry(inquiry);
+    setSelectedClassId("");
+    setShowEnrollModal(true);
+  };
+
+  const handleEnrollSubmit = async (e) => {
+    e.preventDefault();
+    if (!selectedInquiry || !selectedClassId) return;
+
+    setEnrollLoading(true);
+    try {
+      await enrollChild(selectedInquiry._id, selectedClassId);
+      // Refresh inquiries
+      const response = await getAllInquiries();
+      const validatedData = Array.isArray(response)
+        ? response
+        : response?.data && Array.isArray(response.data)
+          ? response.data
+          : [];
+      setInquiries(validatedData);
+      setShowEnrollModal(false);
+      setSelectedInquiry(null);
+    } catch (err) {
+      console.error("Enrollment error:", err);
+      alert(
+        err.response?.data?.message ||
+          err.message ||
+          "Failed to enroll child. Please try again.",
+      );
+    } finally {
+      setEnrollLoading(false);
+    }
+  };
+
   const totalInquiries = inquiries.length;
   const pendingInquiries = inquiries.filter(
     (iq) => iq.status === "Pending",
@@ -198,6 +253,16 @@ export default function Dashboard() {
             }`}
           >
             Manage Staff
+          </button>
+          <button
+            onClick={() => setActiveTab("classes")}
+            className={`px-6 py-2 rounded-xl font-bold transition-all ${
+              activeTab === "classes"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Manage Classes
           </button>
         </div>
       </div>
@@ -434,6 +499,14 @@ export default function Dashboard() {
                         </td>
 
                         <td className="p-5 text-right">
+                          {item.status === "Pending" && (
+                            <button
+                              onClick={() => handleEnrollClick(item)}
+                              className="mr-2 px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-all"
+                            >
+                              Enroll
+                            </button>
+                          )}
                           <button
                             onClick={() => handleDelete(item._id)}
                             className="p-2 text-gray-400 hover:text-red-600 transition-colors"
@@ -593,6 +666,59 @@ export default function Dashboard() {
               </p>
             )}
           </form>
+        </div>
+      )}
+
+      {activeTab === "classes" && (
+        <div className="max-w-7xl mx-auto">
+          <ClassManager />
+        </div>
+      )}
+
+      {/* Enrollment Modal */}
+      {showEnrollModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-3xl shadow-xl max-w-md w-full mx-4">
+            <h3 className="text-lg font-black text-gray-900 mb-4">
+              Enroll Child: {selectedInquiry?.childName}
+            </h3>
+            <form onSubmit={handleEnrollSubmit}>
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  Select Class
+                </label>
+                <select
+                  value={selectedClassId}
+                  onChange={(e) => setSelectedClassId(e.target.value)}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  required
+                >
+                  <option value="">Choose a class...</option>
+                  {classes.map((cls) => (
+                    <option key={cls._id} value={cls._id}>
+                      {cls.className} - {cls.ageGroup}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex space-x-3">
+                <button
+                  type="button"
+                  onClick={() => setShowEnrollModal(false)}
+                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-2xl hover:bg-gray-300 transition-all"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={enrollLoading}
+                  className="flex-1 px-4 py-2 bg-green-600 text-white font-bold rounded-2xl hover:bg-green-700 transition-all disabled:opacity-50"
+                >
+                  {enrollLoading ? "Enrolling..." : "Enroll"}
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
     </div>

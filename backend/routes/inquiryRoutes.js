@@ -5,6 +5,7 @@ const {
   getAllInquiries,
   updateInquiryStatus,
   deleteInquiry,
+  enrollChild,
 } = require("../controllers/inquiryController");
 const { protect, admin } = require("../middleware/authMiddleware");
 
@@ -15,5 +16,8 @@ router.get("/all", protect, admin, getAllInquiries);
 router.put("/:id/status", protect, admin, updateInquiryStatus);
 
 router.delete("/:id", protect, admin, deleteInquiry);
+
+// New enrollment route
+router.post("/:id/enroll", protect, admin, enrollChild);
 
 module.exports = router;

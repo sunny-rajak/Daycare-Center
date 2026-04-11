@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/inquiry";
 const USERS_API_URL = "http://localhost:5000/api/users";
+const CLASSES_API_URL = "http://localhost:5000/api/classes";
 
 const getAuthConfig = () => {
   const token = JSON.parse(localStorage.getItem("ecera_user"))?.token;
@@ -43,5 +44,19 @@ export const registerStaff = async (staffData) => {
     payload,
     getAuthConfig(),
   );
+  return response.data;
+};
+
+export const enrollChild = async (inquiryId, classId) => {
+  const response = await axios.post(
+    `${API_URL}/${inquiryId}/enroll`,
+    { classId },
+    getAuthConfig(),
+  );
+  return response.data;
+};
+
+export const getClasses = async () => {
+  const response = await axios.get(`${CLASSES_API_URL}`, getAuthConfig());
   return response.data;
 };
