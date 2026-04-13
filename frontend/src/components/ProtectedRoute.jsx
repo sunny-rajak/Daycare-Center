@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, allowedRoles = ["admin"] }) => {
   const { user, loading } = useAuth();
 
   // Wait for the context to check localStorage before redirecting
@@ -12,9 +12,10 @@ const ProtectedRoute = ({ children }) => {
     return <Navigate to="/admin/login" replace />;
   }
 
-  // If they aren't an admin, you can send them to Home
-  if (user.role !== "admin") {
-    return <Navigate to="/" replace />;
+  if (!allowedRoles.includes(user.role)) {
+    const redirectPath =
+      user.role === "teacher" ? "/staff/dashboard" : "/admin/login";
+    return <Navigate to={redirectPath} replace />;
   }
 
   return children;

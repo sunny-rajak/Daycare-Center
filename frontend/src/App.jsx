@@ -6,6 +6,7 @@ import Home from "./pages/public/Home";
 // Admin Pages
 import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
+import StaffDashboard from "./pages/admin/StaffDashboard";
 
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
@@ -30,7 +31,17 @@ function App() {
           }
         />
 
-        {/* 4. Optional: 404 Page or Redirect */}
+        {/* 4. Teacher Dashboard: Only accessible if logged in as Teacher */}
+        <Route
+          path="/staff/dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["teacher"]}>
+              <StaffDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 5. Optional: 404 Page or Redirect */}
         <Route
           path="*"
           element={<div className="p-20 text-center">404 - Page Not Found</div>}

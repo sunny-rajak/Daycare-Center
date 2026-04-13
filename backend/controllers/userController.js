@@ -7,7 +7,8 @@ const jwt = require("jsonwebtoken");
 // @access  Public for first user, Admin-only thereafter
 exports.registerUser = async (req, res, next) => {
   try {
-    const { name, email, password, role, phone, salary, hireDate } = req.body;
+    const { name, email, password, role, phone, salary, hireDate, classId } =
+      req.body;
 
     // Check if any users exist
     const userCount = await User.countDocuments();
@@ -59,6 +60,10 @@ exports.registerUser = async (req, res, next) => {
       role: currentRole || "teacher",
     };
 
+    if (classId) {
+      userData.classId = classId;
+    }
+
     // Only add optional fields if they are provided and not empty
     if (phone?.trim()) userData.phone = phone.trim();
     if (salary !== undefined && salary !== null && salary !== "") {
@@ -75,6 +80,7 @@ exports.registerUser = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        classId: user.classId || null,
         token: generateToken(user._id), // Send token immediately on register
       });
     }
@@ -100,6 +106,7 @@ exports.loginUser = async (req, res, next) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        classId: user.classId || null,
         token: generateToken(user._id),
       });
     } else {

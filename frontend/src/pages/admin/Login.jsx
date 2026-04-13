@@ -23,7 +23,13 @@ export default function Login() {
       );
 
       login(data); // This saves user to Context and LocalStorage
-      navigate("/admin/dashboard");
+      if (data.role === "admin") {
+        navigate("/admin/dashboard");
+      } else if (data.role === "teacher") {
+        navigate("/staff/dashboard");
+      } else {
+        navigate("/admin/login");
+      }
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
     }

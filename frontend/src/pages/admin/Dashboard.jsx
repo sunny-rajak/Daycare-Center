@@ -9,6 +9,11 @@ import {
   enrollChild,
   getClasses,
 } from "../../api/inquiryApi";
+import {
+  getStaffList,
+  assignTeacherClass,
+  getAttendanceHistory,
+} from "../../api/staffApi";
 import ClassManager from "../../components/ClassManager";
 
 export default function Dashboard() {
@@ -41,14 +46,25 @@ export default function Dashboard() {
     phone: "",
     salary: "",
     hireDate: "",
+    classId: "",
   });
   const [staffLoading, setStaffLoading] = useState(false);
   const [staffMessage, setStaffMessage] = useState({ type: "", text: "" });
+  const [staffList, setStaffList] = useState([]);
+  const [selectedClassByTeacher, setSelectedClassByTeacher] = useState({});
+  const [assignLoading, setAssignLoading] = useState(false);
+  const [assignMessage, setAssignMessage] = useState("");
 
   // Enrollment modal state
   const [showEnrollModal, setShowEnrollModal] = useState(false);
   const [selectedInquiry, setSelectedInquiry] = useState(null);
   const [classes, setClasses] = useState([]);
+  const [attendanceHistory, setAttendanceHistory] = useState([]);
+  const [attendanceDateFilter, setAttendanceDateFilter] = useState("");
+  const [attendanceClassFilter, setAttendanceClassFilter] = useState("");
+  const [attendanceHistoryLoading, setAttendanceHistoryLoading] =
+    useState(false);
+  const [attendanceHistoryError, setAttendanceHistoryError] = useState("");
   const [selectedClassId, setSelectedClassId] = useState("");
   const [enrollLoading, setEnrollLoading] = useState(false);
 
@@ -86,9 +102,55 @@ export default function Dashboard() {
       }
     };
 
+    const fetchStaffMembers = async () => {
+      try {
+        const response = await getStaffList();
+        const staff = response?.data || [];
+        setStaffList(staff);
+        const initialAssignments = {};
+        staff.forEach((teacher) => {
+          initialAssignments[teacher._id] = teacher.classId?._id || "";
+        });
+        setSelectedClassByTeacher(initialAssignments);
+      } catch (err) {
+        console.error("Failed to fetch staff:", err);
+      }
+    };
+
     fetchInquiries();
     fetchClasses();
+    fetchStaffMembers();
   }, []);
+
+  const fetchAttendanceHistory = async (filters = {}) => {
+    setAttendanceHistoryLoading(true);
+    setAttendanceHistoryError("");
+
+    try {
+      const cleanFilters = {
+        date: filters.date || undefined,
+        classId: filters.classId || undefined,
+      };
+      const response = await getAttendanceHistory(cleanFilters);
+      setAttendanceHistory(response?.data || []);
+    } catch (err) {
+      setAttendanceHistoryError(
+        err.response?.data?.message ||
+          "Unable to load attendance history. Please try again.",
+      );
+      setAttendanceHistory([]);
+    } finally {
+      setAttendanceHistoryLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (activeTab !== "attendance") return;
+    fetchAttendanceHistory({
+      date: attendanceDateFilter,
+      classId: attendanceClassFilter,
+    });
+  }, [activeTab, attendanceDateFilter, attendanceClassFilter]);
 
   const handleLogout = () => {
     logout();
@@ -143,6 +205,7 @@ export default function Dashboard() {
         phone: "",
         salary: "",
         hireDate: "",
+        classId: "",
       });
     } catch (err) {
       setStaffMessage({
@@ -153,6 +216,43 @@ export default function Dashboard() {
       });
     } finally {
       setStaffLoading(false);
+    }
+  };
+
+  const handleTeacherClassChange = (teacherId, classId) => {
+    setSelectedClassByTeacher((prev) => ({
+      ...prev,
+      [teacherId]: classId,
+    }));
+  };
+
+  const handleSaveTeacherClass = async (teacherId) => {
+    setAssignMessage("");
+    setAssignLoading(true);
+
+    try {
+      const classId = Object.prototype.hasOwnProperty.call(
+        selectedClassByTeacher,
+        teacherId,
+      )
+        ? selectedClassByTeacher[teacherId]
+        : staffList.find((teacher) => teacher._id === teacherId)?.classId
+            ?._id || "";
+
+      const response = await assignTeacherClass(teacherId, classId || null);
+      setStaffList((prev) =>
+        prev.map((teacher) =>
+          teacher._id === teacherId ? response.data : teacher,
+        ),
+      );
+      setAssignMessage("Teacher class assignment updated successfully.");
+    } catch (err) {
+      setAssignMessage(
+        err.response?.data?.message ||
+          "Failed to update teacher assignment. Please try again.",
+      );
+    } finally {
+      setAssignLoading(false);
     }
   };
 
@@ -263,6 +363,16 @@ export default function Dashboard() {
             }`}
           >
             Manage Classes
+          </button>
+          <button
+            onClick={() => setActiveTab("attendance")}
+            className={`px-6 py-2 rounded-xl font-bold transition-all ${
+              activeTab === "attendance"
+                ? "bg-white text-gray-900 shadow-sm"
+                : "text-gray-500 hover:text-gray-700"
+            }`}
+          >
+            Attendance Logs
           </button>
         </div>
       </div>
@@ -604,13 +714,39 @@ export default function Dashboard() {
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   value={staffForm.role}
                   onChange={(e) =>
-                    setStaffForm({ ...staffForm, role: e.target.value })
+                    setStaffForm({
+                      ...staffForm,
+                      role: e.target.value,
+                      classId:
+                        e.target.value === "teacher" ? staffForm.classId : "",
+                    })
                   }
                 >
                   <option value="teacher">Teacher</option>
                   <option value="admin">Admin</option>
                 </select>
               </div>
+              {staffForm.role === "teacher" && (
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    Assigned Class
+                  </label>
+                  <select
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                    value={staffForm.classId}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, classId: e.target.value })
+                    }
+                  >
+                    <option value="">No class assigned</option>
+                    {classes.map((cls) => (
+                      <option key={cls._id} value={cls._id}>
+                        {cls.className} - {cls.ageGroup}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
               <div>
                 <label className="block text-sm font-bold text-gray-700 mb-2">
                   Phone
@@ -666,6 +802,226 @@ export default function Dashboard() {
               </p>
             )}
           </form>
+
+          <div className="rounded-3xl bg-white p-8 shadow-sm border border-gray-100">
+            <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
+              <div>
+                <h2 className="text-xl font-black text-gray-900">
+                  Teacher Assignments
+                </h2>
+                <p className="text-sm text-gray-500">
+                  Assign teachers to classes from your current roster.
+                </p>
+              </div>
+              {assignMessage && (
+                <p className="text-sm text-slate-600">{assignMessage}</p>
+              )}
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left border-collapse">
+                <thead>
+                  <tr className="bg-gray-50 border-b border-gray-100">
+                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                      Teacher
+                    </th>
+                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                      Email
+                    </th>
+                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                      Assigned Class
+                    </th>
+                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                      Action
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-50">
+                  {staffList.length === 0 ? (
+                    <tr>
+                      <td
+                        colSpan="4"
+                        className="p-12 text-center text-gray-400"
+                      >
+                        No teachers currently registered.
+                      </td>
+                    </tr>
+                  ) : (
+                    staffList.map((teacher) => {
+                      const selectedClassId =
+                        selectedClassByTeacher[teacher._id] ||
+                        teacher.classId?._id ||
+                        "";
+                      return (
+                        <tr
+                          key={teacher._id}
+                          className="hover:bg-slate-50 transition-colors"
+                        >
+                          <td className="p-4">
+                            <div className="font-bold text-gray-900">
+                              {teacher.name}
+                            </div>
+                            <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                              {teacher.role}
+                            </div>
+                          </td>
+                          <td className="p-4 hidden md:table-cell text-gray-600 text-sm">
+                            {teacher.email}
+                          </td>
+                          <td className="p-4">
+                            <select
+                              value={selectedClassId}
+                              onChange={(e) =>
+                                handleTeacherClassChange(
+                                  teacher._id,
+                                  e.target.value,
+                                )
+                              }
+                              className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none focus:border-blue-500"
+                            >
+                              <option value="">Unassigned</option>
+                              {classes.map((cls) => (
+                                <option key={cls._id} value={cls._id}>
+                                  {cls.className} - {cls.ageGroup}
+                                </option>
+                              ))}
+                            </select>
+                          </td>
+                          <td className="p-4">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleSaveTeacherClass(teacher._id)
+                              }
+                              disabled={assignLoading}
+                              className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
+                            >
+                              Save
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "attendance" && (
+        <div className="max-w-7xl mx-auto space-y-6">
+          <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-100">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">
+                  Attendance Logs
+                </h2>
+                <p className="mt-2 text-sm text-gray-500">
+                  Filter attendance history by date or class and review past
+                  records.
+                </p>
+              </div>
+              <div className="grid w-full max-w-2xl gap-4 sm:grid-cols-2 md:w-auto">
+                <label className="block text-sm font-medium text-gray-700">
+                  Date
+                  <input
+                    type="date"
+                    value={attendanceDateFilter}
+                    onChange={(e) => setAttendanceDateFilter(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none focus:border-blue-500"
+                  />
+                </label>
+                <label className="block text-sm font-medium text-gray-700">
+                  Class
+                  <select
+                    value={attendanceClassFilter}
+                    onChange={(e) => setAttendanceClassFilter(e.target.value)}
+                    className="mt-2 w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none focus:border-blue-500"
+                  >
+                    <option value="">All Classes</option>
+                    {classes.map((cls) => (
+                      <option key={cls._id} value={cls._id}>
+                        {cls.className} - {cls.ageGroup}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-3xl bg-white p-6 shadow-sm border border-gray-100 overflow-x-auto">
+            <table className="w-full text-left border-collapse">
+              <thead>
+                <tr className="bg-gray-50 border-b border-gray-100">
+                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    Date
+                  </th>
+                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    Child Name
+                  </th>
+                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    Class
+                  </th>
+                  <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    Status
+                  </th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-50">
+                {attendanceHistoryLoading ? (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="p-20 text-center text-gray-400 font-medium"
+                    >
+                      Loading attendance history...
+                    </td>
+                  </tr>
+                ) : attendanceHistoryError ? (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="p-20 text-center text-red-500 font-bold"
+                    >
+                      {attendanceHistoryError}
+                    </td>
+                  </tr>
+                ) : attendanceHistory.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan="4"
+                      className="p-20 text-center text-gray-500 font-medium"
+                    >
+                      No attendance records found for the selected filters.
+                    </td>
+                  </tr>
+                ) : (
+                  attendanceHistory.map((record) => (
+                    <tr
+                      key={record._id}
+                      className="hover:bg-blue-50/40 transition-colors"
+                    >
+                      <td className="p-4 text-sm text-gray-700">
+                        {new Date(record.date).toLocaleDateString()}
+                      </td>
+                      <td className="p-4 text-sm font-medium text-gray-900">
+                        {record.childId?.name || "Unknown"}
+                      </td>
+                      <td className="p-4 text-sm text-gray-700">
+                        {record.classId?.className || "Unknown"}
+                      </td>
+                      <td className="p-4 text-sm font-semibold text-gray-900">
+                        {record.status}
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
         </div>
       )}
 
