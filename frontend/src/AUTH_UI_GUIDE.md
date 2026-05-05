@@ -1,8 +1,8 @@
-# Ecera Stay & Care - Authentication UI System
+# Sprout & Spark Childcare - Authentication UI System
 
 ## Overview
 
-Complete role-based authentication and dashboard UI system for Ecera Stay & Care daycare management platform. Includes unified login, parent registration with verification, role-based sidebar navigation, and reusable form components.
+Complete role-based authentication and dashboard UI system for Sprout & Spark Childcare management platform. Includes unified login, parent registration with verification, role-based sidebar navigation, and reusable form components.
 
 ---
 

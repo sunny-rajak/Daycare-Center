@@ -1,28 +1,13 @@
 import axios from "axios";
 
-const ACTIVITY_API_URL = "http://localhost:5000/api/activities";
-
-const getAuthConfig = () => {
-  const token = JSON.parse(localStorage.getItem("ecera_user"))?.token;
-  if (!token) return {};
-  return {
-    headers: { Authorization: `Bearer ${token}` },
-  };
-};
+const ACTIVITY_API_URL = `${import.meta.env.VITE_API_URL}/activities`;
 
 export const createActivity = async (activityData) => {
-  const response = await axios.post(
-    ACTIVITY_API_URL,
-    activityData,
-    getAuthConfig(),
-  );
+  const response = await axios.post(ACTIVITY_API_URL, activityData);
   return response.data;
 };
 
 export const getActivitiesByChild = async (childId) => {
-  const response = await axios.get(
-    `${ACTIVITY_API_URL}/child/${childId}`,
-    getAuthConfig(),
-  );
+  const response = await axios.get(`${ACTIVITY_API_URL}/child/${childId}`);
   return response.data;
 };

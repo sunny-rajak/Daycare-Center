@@ -76,7 +76,15 @@ const assignClassToTeacher = async (req, res) => {
 
 const getTeacherDashboard = async (req, res) => {
   try {
-    if (!req.user?.classId) {
+    if (!req.user || !req.user._id) {
+      return res.status(401).json({
+        success: false,
+        message: "Not authenticated",
+      });
+    }
+
+    const user = await User.findById(req.user._id);
+    if (!user || !user.classId) {
       return res.status(200).json({
         success: true,
         class: null,
@@ -84,7 +92,7 @@ const getTeacherDashboard = async (req, res) => {
       });
     }
 
-    const assignedClass = await Class.findById(req.user.classId);
+    const assignedClass = await Class.findById(user.classId);
     if (!assignedClass) {
       return res.status(404).json({
         success: false,

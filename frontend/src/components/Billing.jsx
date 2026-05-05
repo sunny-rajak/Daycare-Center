@@ -280,7 +280,10 @@ export default function Billing() {
               Total Expected
             </p>
             <h3 className="text-3xl font-black text-[#2D3436]">
-              ${totalExpected.toFixed(2)}
+              ₹
+              {totalExpected.toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+              })}
             </h3>
           </div>
         </div>
@@ -307,7 +310,10 @@ export default function Billing() {
               Total Collected
             </p>
             <h3 className="text-3xl font-black text-[#2D3436]">
-              ${totalCollected.toFixed(2)}
+              ₹
+              {totalCollected.toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+              })}
             </h3>
           </div>
         </div>
@@ -334,7 +340,10 @@ export default function Billing() {
               Total Outstanding
             </p>
             <h3 className="text-3xl font-black text-[#2D3436]">
-              ${totalOutstanding.toFixed(2)}
+              ₹
+              {totalOutstanding.toLocaleString("en-IN", {
+                maximumFractionDigits: 0,
+              })}
             </h3>
           </div>
         </div>
@@ -416,7 +425,10 @@ export default function Billing() {
                       </div>
                     </td>
                     <td className="p-5 font-bold text-[#2D3436]">
-                      ${(payment.amount || 0).toFixed(2)}
+                      ₹
+                      {Number(payment.amount || 0).toLocaleString("en-IN", {
+                        maximumFractionDigits: 0,
+                      })}
                     </td>
                     <td className="p-5 text-sm text-[#2D3436]">
                       {payment.date

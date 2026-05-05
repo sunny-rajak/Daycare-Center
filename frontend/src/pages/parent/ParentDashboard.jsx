@@ -96,8 +96,8 @@ export default function ParentDashboard() {
   const [error, setError] = useState("");
   const [selectedChildForSafety, setSelectedChildForSafety] = useState(null);
 
-  const fetchFamily = async () => {
-    setLoading(true);
+  const fetchFamily = async (isRefresh = false) => {
+    if (!isRefresh) setLoading(true);
     setError("");
     try {
       const response = await getMyFamily();
@@ -108,7 +108,7 @@ export default function ParentDashboard() {
           "Unable to load family data. Please refresh.",
       );
     } finally {
-      setLoading(false);
+      if (!isRefresh) setLoading(false);
     }
   };
 
@@ -150,7 +150,7 @@ export default function ParentDashboard() {
               verifyResponse.data.status === "success"
             ) {
               alert("Payment Verified and Successful!");
-              fetchFamily();
+              fetchFamily(true);
             } else {
               alert("Payment verification failed.");
             }
@@ -242,14 +242,14 @@ export default function ParentDashboard() {
             <ManageBasicInfo
               child={selectedChildForSafety}
               onSave={() => {
-                fetchFamily();
+                fetchFamily(true);
               }}
             />
             <ManageSafetyProfile
               child={selectedChildForSafety}
               onSave={() => {
                 setSelectedChildForSafety(null);
-                fetchFamily();
+                fetchFamily(true);
               }}
             />
           </div>

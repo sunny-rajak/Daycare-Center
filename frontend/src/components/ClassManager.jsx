@@ -15,6 +15,7 @@ export default function ClassManager() {
     className: "Infant",
     ageGroup: "3m - 15m",
     capacity: "10",
+    monthlyFee: "10000",
   });
   const [saving, setSaving] = useState(false);
   const [editingClassId, setEditingClassId] = useState(null);
@@ -46,8 +47,14 @@ export default function ClassManager() {
         className: form.className,
         ageGroup: form.ageGroup,
         capacity: Number(form.capacity),
+        monthlyFee: Number(form.monthlyFee),
       });
-      setForm({ className: "Infant", ageGroup: "3m - 15m", capacity: "10" });
+      setForm({
+        className: "Infant",
+        ageGroup: "3m - 15m",
+        capacity: "10",
+        monthlyFee: "10000",
+      });
       loadClasses();
     } catch (err) {
       setError(err.response?.data?.message || "Failed to create class.");
@@ -110,7 +117,7 @@ export default function ClassManager() {
 
         <form
           onSubmit={handleCreateClass}
-          className="grid grid-cols-1 md:grid-cols-3 gap-4"
+          className="grid grid-cols-1 md:grid-cols-4 gap-4"
         >
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-1.5">
@@ -130,13 +137,16 @@ export default function ClassManager() {
             <label className="block text-sm font-semibold text-gray-600 mb-1.5">
               Age Group
             </label>
-            <input
+            <select
               value={form.ageGroup}
               onChange={(e) => setForm({ ...form, ageGroup: e.target.value })}
               className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
-              placeholder="e.g. 3m - 15m"
               required
-            />
+            >
+              <option value="3m - 15m">3m - 15m</option>
+              <option value="16m - 33m">16m - 33m</option>
+              <option value="33m - 5y">33m - 5y</option>
+            </select>
           </div>
           <div>
             <label className="block text-sm font-semibold text-gray-600 mb-1.5">
@@ -151,7 +161,20 @@ export default function ClassManager() {
               required
             />
           </div>
-          <div className="md:col-span-3 flex justify-end mt-2">
+          <div>
+            <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+              Monthly Fee (₹)
+            </label>
+            <input
+              type="number"
+              min="0"
+              value={form.monthlyFee}
+              onChange={(e) => setForm({ ...form, monthlyFee: e.target.value })}
+              className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
+              required
+            />
+          </div>
+          <div className="md:col-span-4 flex justify-end mt-2">
             <button
               type="submit"
               disabled={saving}

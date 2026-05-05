@@ -195,7 +195,7 @@ export default function StaffDashboard() {
       // Build checkout activity payload
       const checkoutData = {
         childId: selectedChild._id,
-        teacherId: JSON.parse(localStorage.getItem("ecera_user"))._id,
+        teacherId: JSON.parse(localStorage.getItem("daycare_user"))._id,
         type: "Checkout",
         title: "Child Checked Out",
         description: `${selectedChild.name} was picked up by ${selectedPickup} (${
@@ -243,7 +243,7 @@ export default function StaffDashboard() {
     try {
       const activityData = {
         childId: selectedChild._id,
-        teacherId: JSON.parse(localStorage.getItem("ecera_user"))._id,
+        teacherId: JSON.parse(localStorage.getItem("daycare_user"))._id,
         ...activityForm,
       };
 
@@ -273,7 +273,7 @@ export default function StaffDashboard() {
     try {
       const activities = students.map((student) => ({
         childId: student._id,
-        teacherId: JSON.parse(localStorage.getItem("ecera_user"))._id,
+        teacherId: JSON.parse(localStorage.getItem("daycare_user"))._id,
         ...activityForm,
       }));
 

@@ -26,11 +26,11 @@ export default function Dashboard() {
 
   const [activeTab, setActiveTab] = useState(() => {
     if (typeof window === "undefined") return "tours";
-    return localStorage.getItem("ecera_dashboard_tab") || "tours";
+    return localStorage.getItem("daycare_dashboard_tab") || "tours";
   });
 
   useEffect(() => {
-    localStorage.setItem("ecera_dashboard_tab", activeTab);
+    localStorage.setItem("daycare_dashboard_tab", activeTab);
   }, [activeTab]);
 
   // Defensive Initialization: Start with an empty array
@@ -291,9 +291,18 @@ export default function Dashboard() {
     }
   };
 
-  const handleEnrollClick = (inquiry) => {
+  const handleEnrollClick = async (inquiry) => {
     setSelectedInquiry(inquiry);
     setSelectedClassId("");
+
+    // Refresh classes to get accurate capacities before opening modal
+    try {
+      const response = await getClasses();
+      setClasses(response?.data || []);
+    } catch (err) {
+      console.error("Failed to refresh classes:", err);
+    }
+
     setShowEnrollModal(true);
   };
 
@@ -658,21 +667,25 @@ export default function Dashboard() {
                           >
                             <option value="Pending">Pending</option>
                             <option value="Contacted">Contacted</option>
-                            <option value="Enrolled">Enrolled</option>
+                            <option value="Enrolled" disabled>
+                              Enrolled
+                            </option>
                             <option value="Rejected">Rejected</option>
                             <option value="Closed">Closed</option>
                           </select>
                         </td>
 
                         <td className="p-5 text-right">
-                          {item.status === "Pending" && (
-                            <button
-                              onClick={() => handleEnrollClick(item)}
-                              className="mr-2 px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-all"
-                            >
-                              Enroll
-                            </button>
-                          )}
+                          {item.status !== "Enrolled" &&
+                            item.status !== "Closed" &&
+                            item.status !== "Rejected" && (
+                              <button
+                                onClick={() => handleEnrollClick(item)}
+                                className="mr-2 px-3 py-1 bg-green-600 text-white text-xs font-bold rounded-lg hover:bg-green-700 transition-all"
+                              >
+                                Enroll
+                              </button>
+                            )}
                           <button
                             onClick={() => handleDelete(item._id)}
                             className="p-2 text-gray-400 hover:text-red-600 transition-colors"
@@ -1114,44 +1127,76 @@ export default function Dashboard() {
 
       {/* Enrollment Modal */}
       {showEnrollModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-3xl shadow-xl max-w-md w-full mx-4">
-            <h3 className="text-lg font-black text-gray-900 mb-4">
-              Enroll Child: {selectedInquiry?.childName}
-            </h3>
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-8 rounded-3xl shadow-xl max-w-md w-full transform transition-all">
+            <div className="mb-6">
+              <h3 className="text-2xl font-black text-[#2D3436]">
+                Enroll Child
+              </h3>
+              <p className="text-sm text-gray-500 mt-1">
+                Complete enrollment for{" "}
+                <span className="font-bold text-[#4D9699]">
+                  {selectedInquiry?.childName}
+                </span>{" "}
+                ({selectedInquiry?.childAge} yrs).
+              </p>
+            </div>
+
+            <div className="bg-gray-50 rounded-2xl p-4 mb-6 border border-gray-100">
+              <div className="text-sm space-y-2">
+                <p className="text-gray-500">
+                  Parent:{" "}
+                  <span className="font-semibold text-gray-700">
+                    {selectedInquiry?.parentName}
+                  </span>
+                </p>
+                <p className="text-gray-500">
+                  Program of Interest:{" "}
+                  <span className="font-semibold text-gray-700">
+                    {selectedInquiry?.programOfInterest}
+                  </span>
+                </p>
+              </div>
+            </div>
+
             <form onSubmit={handleEnrollSubmit}>
-              <div className="mb-4">
+              <div className="mb-6">
                 <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Select Class
+                  Assign to Class
                 </label>
                 <select
                   value={selectedClassId}
                   onChange={(e) => setSelectedClassId(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 outline-none transition-all text-[#2D3436]"
                   required
                 >
                   <option value="">Choose a class...</option>
-                  {classes.map((cls) => (
-                    <option key={cls._id} value={cls._id}>
-                      {cls.className} - {cls.ageGroup}
-                    </option>
-                  ))}
+                  {classes.map((cls) => {
+                    const occupancy = cls.enrolledCount || 0;
+                    const isFull = occupancy >= cls.capacity;
+                    return (
+                      <option key={cls._id} value={cls._id} disabled={isFull}>
+                        {cls.className} - {cls.ageGroup} ({occupancy}/
+                        {cls.capacity} {isFull ? "Full" : "Enrolled"})
+                      </option>
+                    );
+                  })}
                 </select>
               </div>
-              <div className="flex space-x-3">
+              <div className="flex gap-3">
                 <button
                   type="button"
                   onClick={() => setShowEnrollModal(false)}
-                  className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 font-bold rounded-2xl hover:bg-gray-300 transition-all"
+                  className="flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-bold rounded-xl hover:bg-gray-200 transition-all"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  disabled={enrollLoading}
-                  className="flex-1 px-4 py-2 bg-green-600 text-white font-bold rounded-2xl hover:bg-green-700 transition-all disabled:opacity-50"
+                  disabled={enrollLoading || !selectedClassId}
+                  className="flex-1 px-4 py-3 bg-[#4D9699] text-white font-bold rounded-xl hover:bg-[#3d7a7c] transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {enrollLoading ? "Enrolling..." : "Enroll"}
+                  {enrollLoading ? "Enrolling..." : "Confirm Enrollment"}
                 </button>
               </div>
             </form>

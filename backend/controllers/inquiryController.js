@@ -70,6 +70,17 @@ const updateInquiryStatus = async (req, res) => {
         .json({ success: false, message: "Inquiry not found" });
     }
 
+    // Free up the class spot if the status is moved away from Enrolled
+    if (status !== "Enrolled") {
+      await Child.updateMany(
+        {
+          name: updatedInquiry.childName,
+          parentEmail: updatedInquiry.email,
+        },
+        { $set: { status: "Unenrolled" }, $unset: { classId: 1 } },
+      );
+    }
+
     res.status(200).json({ success: true, data: updatedInquiry });
   } catch (error) {
     res
@@ -113,10 +124,10 @@ const enrollChild = async (req, res) => {
         .json({ success: false, message: "Inquiry not found" });
     }
 
-    if (inquiry.status !== "Pending") {
+    if (inquiry.status === "Enrolled") {
       return res
         .status(400)
-        .json({ success: false, message: "Inquiry is not in pending status" });
+        .json({ success: false, message: "Child is already enrolled" });
     }
 
     // Check if class exists
@@ -166,16 +177,27 @@ const enrollChild = async (req, res) => {
       ? new Date(Date.now() - ageNumber * 365 * 24 * 60 * 60 * 1000)
       : new Date();
 
-    const child = await Child.create({
+    let child = await Child.findOne({
       name: inquiry.childName,
-      dateOfBirth: birthday,
-      age: ageNumber,
-      gender: "Other", // Default, can be updated later
-      parentId: parent._id,
       parentEmail: inquiry.email,
-      classId: selectedClass._id,
-      status: "Enrolled",
     });
+
+    if (child) {
+      child.classId = selectedClass._id;
+      child.status = "Enrolled";
+      await child.save();
+    } else {
+      child = await Child.create({
+        name: inquiry.childName,
+        dateOfBirth: birthday,
+        age: ageNumber,
+        gender: "Other", // Default, can be updated later
+        parentId: parent._id,
+        parentEmail: inquiry.email,
+        classId: selectedClass._id,
+        status: "Enrolled",
+      });
+    }
 
     // Update Inquiry status
     inquiry.status = "Enrolled";

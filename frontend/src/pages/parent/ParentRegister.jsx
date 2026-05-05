@@ -27,8 +27,8 @@ export default function ParentRegister() {
     try {
       // Submits to your backend parent registration endpoint
       const { data } = await axios.post(
-        `${import.meta.env.VITE_API_URL}/parents/register`,
-        formData,
+        `${import.meta.env.VITE_API_URL}/users/register`,
+        { ...formData, role: "parent" },
       );
 
       // Log the user in and redirect to their dashboard
