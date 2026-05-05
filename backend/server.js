@@ -17,8 +17,26 @@ const app = express();
 // Body parser
 app.use(express.json());
 
-// Enable CORS
-app.use(cors());
+// Configure CORS
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://daycare-center-omega.vercel.app",
+  "https://daycare-center-igi5oxmcj-sunny-rajaks-projects.vercel.app",
+  "https://daycare-center-git-main-sunny-rajaks-projects.vercel.app",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  }),
+);
 
 // Dev logging middleware
 if (process.env.NODE_ENV === "development") {
