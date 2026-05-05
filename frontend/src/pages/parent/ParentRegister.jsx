@@ -27,7 +27,7 @@ export default function ParentRegister() {
     try {
       // Submits to your backend parent registration endpoint
       const { data } = await axios.post(
-        "http://localhost:5000/api/parents/register",
+        `${import.meta.env.VITE_API_URL}/parents/register`,
         formData,
       );
 

@@ -26,7 +26,7 @@ export default function PublicInquiryForm() {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/inquiry/submit",
+        `${import.meta.env.VITE_API_URL}/inquiry/submit`,
         formData,
       );
       setStatus({ type: "success", message: res.data.message });

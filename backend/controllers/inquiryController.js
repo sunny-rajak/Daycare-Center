@@ -81,7 +81,6 @@ const updateInquiryStatus = async (req, res) => {
 const deleteInquiry = async (req, res) => {
   try {
     const { id } = req.params;
-    console.log("Delete request for ID:", id);
     const deletedInquiry = await Inquiry.findByIdAndDelete(id);
 
     if (!deletedInquiry) {
@@ -106,28 +105,15 @@ const enrollChild = async (req, res) => {
     const { id } = req.params; // inquiryId
     const { classId } = req.body;
 
-    console.log("Enrolling child for inquiry ID:", id, "classId:", classId);
-
     // Fetch the inquiry
     const inquiry = await Inquiry.findById(id);
     if (!inquiry) {
-      console.log("Inquiry not found for ID:", id);
       return res
         .status(404)
         .json({ success: false, message: "Inquiry not found" });
     }
 
-    console.log("Inquiry data:", {
-      id: inquiry._id,
-      status: inquiry.status,
-      email: inquiry.email,
-      phone: inquiry.phone,
-      childName: inquiry.childName,
-      childAge: inquiry.childAge,
-    });
-
     if (inquiry.status !== "Pending") {
-      console.log("Inquiry status is not pending:", inquiry.status);
       return res
         .status(400)
         .json({ success: false, message: "Inquiry is not in pending status" });
@@ -136,7 +122,6 @@ const enrollChild = async (req, res) => {
     // Check if class exists
     const selectedClass = await Class.findById(classId);
     if (!selectedClass) {
-      console.log("Class not found for ID:", classId);
       return res
         .status(404)
         .json({ success: false, message: "Class not found" });
@@ -146,13 +131,7 @@ const enrollChild = async (req, res) => {
     const enrolledCount = await Child.countDocuments({
       classId: selectedClass._id,
     });
-    console.log("Class capacity check:", {
-      enrolledCount,
-      capacity: selectedClass.capacity,
-      className: selectedClass.name,
-    });
     if (enrolledCount >= selectedClass.capacity) {
-      console.log("Class at full capacity");
       return res.status(400).json({
         success: false,
         message: "Selected class is already at full capacity",
@@ -161,12 +140,6 @@ const enrollChild = async (req, res) => {
 
     // Reuse an existing parent record if one exists for this email,
     // otherwise create a new parent record.
-    console.log(
-      "Looking for existing parent with email:",
-      inquiry.email,
-      "and phone:",
-      inquiry.phone,
-    );
     let parent = await Parent.findOne({
       email: inquiry.email,
       phone: inquiry.phone,
@@ -179,28 +152,19 @@ const enrollChild = async (req, res) => {
       parent.name = inquiry.parentName;
       parent.phone = inquiry.phone;
       await parent.save();
-      console.log("Parent updated:", parent._id.toString(), parent.name);
     } else {
       parent = await Parent.create({
         name: inquiry.parentName,
         email: inquiry.email,
         phone: inquiry.phone,
       });
-      console.log("Parent created:", parent._id.toString(), parent.name);
     }
 
     // Create Child
     const ageNumber = Number(inquiry.childAge);
-    console.log(
-      "Child age from inquiry:",
-      inquiry.childAge,
-      "parsed:",
-      ageNumber,
-    );
     const birthday = Number.isFinite(ageNumber)
       ? new Date(Date.now() - ageNumber * 365 * 24 * 60 * 60 * 1000)
       : new Date();
-    console.log("Calculated birthday:", birthday);
 
     const child = await Child.create({
       name: inquiry.childName,
@@ -212,12 +176,10 @@ const enrollChild = async (req, res) => {
       classId: selectedClass._id,
       status: "Enrolled",
     });
-    console.log("Child created:", child._id, child.name);
 
     // Update Inquiry status
     inquiry.status = "Enrolled";
     await inquiry.save();
-    console.log("Inquiry status updated to Enrolled");
 
     res.status(201).json({
       success: true,
@@ -225,7 +187,6 @@ const enrollChild = async (req, res) => {
       data: { parent, child },
     });
   } catch (error) {
-    console.error("Error in enrollChild:", error);
     res
       .status(500)
       .json({ success: false, message: "Server Error", error: error.message });

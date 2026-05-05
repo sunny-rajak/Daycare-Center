@@ -120,14 +120,14 @@ export default function ParentDashboard() {
     try {
       const token = user?.token || localStorage.getItem("token");
       const response = await axios.post(
-        "http://localhost:5000/api/payments/create-order",
+        `${import.meta.env.VITE_API_URL}/payments/create-order`,
         { amount: amountToPay },
         { headers: { Authorization: `Bearer ${token}` } },
       );
       const order = response.data.data;
 
       const options = {
-        key: "rzp_test_SgzKpoBUHjABly",
+        key: import.meta.env.VITE_RAZORPAY_KEY_ID,
         amount: order.amount,
         currency: order.currency,
         name: "Sprout & Spark Childcare",
@@ -137,7 +137,7 @@ export default function ParentDashboard() {
         handler: async function (razorpayResponse) {
           try {
             const verifyResponse = await axios.post(
-              "http://localhost:5000/api/payments/verify-payment",
+              `${import.meta.env.VITE_API_URL}/payments/verify-payment`,
               {
                 razorpay_order_id: razorpayResponse.razorpay_order_id,
                 razorpay_payment_id: razorpayResponse.razorpay_payment_id,

@@ -102,7 +102,6 @@ const getMyFamily = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching family data:", error);
     res.status(500).json({
       success: false,
       message: "Could not fetch family data",
@@ -182,7 +181,6 @@ const registerParent = async (req, res) => {
       token: generateToken(savedUser._id),
     });
   } catch (error) {
-    console.error("Error registering parent:", error);
     res.status(500).json({
       success: false,
       message: "Could not register parent",
@@ -263,7 +261,6 @@ const getDashboardData = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Error fetching parent dashboard data:", error);
     res.status(500).json({
       success: false,
       message: "Could not fetch parent dashboard data",
@@ -321,7 +318,6 @@ const updateChildSafetyProfile = async (req, res) => {
       data: updatedChild,
     });
   } catch (error) {
-    console.error("Error updating child safety profile:", error);
     res.status(500).json({
       success: false,
       message: "Could not update child safety profile",
@@ -382,7 +378,6 @@ const updateChildBasicInfo = async (req, res) => {
       data: updatedChild,
     });
   } catch (error) {
-    console.error("Error updating child basic info:", error);
     res.status(500).json({
       success: false,
       message: "Could not update child basic info",

@@ -162,7 +162,6 @@ export default function Dashboard() {
   };
 
   const handleStatusChange = async (id, newStatus) => {
-    console.log("Attempting update for ID:", id, "to Status:", newStatus);
     try {
       await updateStatus(id, newStatus);
       // Optimistic Update: Refresh the local state to show the change immediately
