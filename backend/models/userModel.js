@@ -9,10 +9,14 @@ const userSchema = new mongoose.Schema(
     role: {
       type: String,
       required: true,
-      enum: ["admin", "teacher"],
+      enum: ["admin", "teacher", "parent"],
       default: "teacher",
     },
     phone: String,
+    parentId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Parent",
+    },
     salary: Number,
     hireDate: Date,
     classId: {

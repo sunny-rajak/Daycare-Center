@@ -1,6 +1,7 @@
 import axios from "axios";
 
 const STAFF_API_URL = "http://localhost:5000/api/staff";
+const ADMIN_API_URL = "http://localhost:5000/api/admin";
 const ATTENDANCE_API_URL = "http://localhost:5000/api/attendance";
 
 const getAuthConfig = () => {
@@ -9,6 +10,15 @@ const getAuthConfig = () => {
   return {
     headers: { Authorization: `Bearer ${token}` },
   };
+};
+
+export const registerStaffMember = async (staffData) => {
+  const response = await axios.post(
+    `${ADMIN_API_URL}/register-staff`,
+    staffData,
+    getAuthConfig(),
+  );
+  return response.data;
 };
 
 export const getTeacherDashboard = async () => {
@@ -47,5 +57,13 @@ export const getAttendanceHistory = async (filters = {}) => {
     ...getAuthConfig(),
     params: filters,
   });
+  return response.data;
+};
+
+export const deleteStaff = async (teacherId) => {
+  const response = await axios.delete(
+    `http://localhost:5000/api/users/${teacherId}`,
+    getAuthConfig(),
+  );
   return response.data;
 };

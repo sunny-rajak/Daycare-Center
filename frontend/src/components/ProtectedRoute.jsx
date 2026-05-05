@@ -9,12 +9,16 @@ const ProtectedRoute = ({ children, allowedRoles = ["admin"] }) => {
 
   // If no user is found in Context, send them to Login (NOT Home)
   if (!user) {
-    return <Navigate to="/admin/login" replace />;
+    return <Navigate to="/login" replace />;
   }
 
   if (!allowedRoles.includes(user.role)) {
     const redirectPath =
-      user.role === "teacher" ? "/staff/dashboard" : "/admin/login";
+      user.role === "teacher"
+        ? "/staff/dashboard"
+        : user.role === "parent"
+          ? "/parent-dashboard"
+          : "/login";
     return <Navigate to={redirectPath} replace />;
   }
 

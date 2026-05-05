@@ -13,16 +13,20 @@ import {
   getStaffList,
   assignTeacherClass,
   getAttendanceHistory,
+  deleteStaff,
 } from "../../api/staffApi";
 import ClassManager from "../../components/ClassManager";
+import Billing from "../../components/Billing";
+import AdminTours from "../../components/AdminTours";
+import { Trash2 } from "lucide-react";
 
 export default function Dashboard() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState(() => {
-    if (typeof window === "undefined") return "inquiries";
-    return localStorage.getItem("ecera_dashboard_tab") || "inquiries";
+    if (typeof window === "undefined") return "tours";
+    return localStorage.getItem("ecera_dashboard_tab") || "tours";
   });
 
   useEffect(() => {
@@ -154,7 +158,7 @@ export default function Dashboard() {
 
   const handleLogout = () => {
     logout();
-    navigate("/admin/login");
+    navigate("/login");
   };
 
   const handleStatusChange = async (id, newStatus) => {
@@ -207,6 +211,16 @@ export default function Dashboard() {
         hireDate: "",
         classId: "",
       });
+
+      // Refresh the staff list to show the newly registered staff member
+      const staffResponse = await getStaffList();
+      const staff = staffResponse?.data || [];
+      setStaffList(staff);
+      const initialAssignments = {};
+      staff.forEach((teacher) => {
+        initialAssignments[teacher._id] = teacher.classId?._id || "";
+      });
+      setSelectedClassByTeacher(initialAssignments);
     } catch (err) {
       setStaffMessage({
         type: "error",
@@ -253,6 +267,28 @@ export default function Dashboard() {
       );
     } finally {
       setAssignLoading(false);
+    }
+  };
+
+  const handleDeleteStaff = async (teacherId) => {
+    if (
+      window.confirm(
+        "Are you sure you want to remove this staff member? This action cannot be undone.",
+      )
+    ) {
+      setAssignLoading(true);
+      setAssignMessage("");
+      try {
+        await deleteStaff(teacherId);
+        setStaffList((prev) => prev.filter((t) => t._id !== teacherId));
+        setAssignMessage("Staff member removed successfully.");
+      } catch (err) {
+        setAssignMessage(
+          err.response?.data?.message || "Failed to remove staff member.",
+        );
+      } finally {
+        setAssignLoading(false);
+      }
     }
   };
 
@@ -312,15 +348,16 @@ export default function Dashboard() {
   });
 
   return (
-    <div className="min-h-screen bg-gray-50 p-4 md:p-8">
+    <div className="min-h-screen bg-[#FDFBF7] p-4 md:p-8">
       {/* Header Section */}
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
         <div>
-          <h1 className="text-2xl font-black text-gray-900 uppercase tracking-tight">
+          <h1 className="text-2xl font-black text-[#2D3436] uppercase tracking-tight">
             Admin Console
           </h1>
-          <p className="text-gray-500 font-medium">
-            Ecera Stay & Care LLC | Staff: {user?.name || "Authenticated User"}
+          <p className="text-[#2D3436]/70 font-medium">
+            Sprout & Spark Childcare LLC | Staff:{" "}
+            {user?.name || "Authenticated User"}
           </p>
         </div>
         <button
@@ -333,13 +370,23 @@ export default function Dashboard() {
 
       {/* Tabs */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="flex space-x-1 bg-gray-100 p-1 rounded-2xl w-fit">
+        <div className="flex flex-wrap gap-2 bg-white/50 p-2 rounded-2xl w-fit border border-gray-100">
+          <button
+            onClick={() => setActiveTab("tours")}
+            className={`px-6 py-2 rounded-xl font-bold transition-all ${
+              activeTab === "tours"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
+            }`}
+          >
+            Booked Tours
+          </button>
           <button
             onClick={() => setActiveTab("inquiries")}
             className={`px-6 py-2 rounded-xl font-bold transition-all ${
               activeTab === "inquiries"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
             }`}
           >
             Manage Inquiries
@@ -348,8 +395,8 @@ export default function Dashboard() {
             onClick={() => setActiveTab("staff")}
             className={`px-6 py-2 rounded-xl font-bold transition-all ${
               activeTab === "staff"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
             }`}
           >
             Manage Staff
@@ -358,8 +405,8 @@ export default function Dashboard() {
             onClick={() => setActiveTab("classes")}
             className={`px-6 py-2 rounded-xl font-bold transition-all ${
               activeTab === "classes"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
             }`}
           >
             Manage Classes
@@ -368,11 +415,21 @@ export default function Dashboard() {
             onClick={() => setActiveTab("attendance")}
             className={`px-6 py-2 rounded-xl font-bold transition-all ${
               activeTab === "attendance"
-                ? "bg-white text-gray-900 shadow-sm"
-                : "text-gray-500 hover:text-gray-700"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
             }`}
           >
             Attendance Logs
+          </button>
+          <button
+            onClick={() => setActiveTab("billing")}
+            className={`px-6 py-2 rounded-xl font-bold transition-all ${
+              activeTab === "billing"
+                ? "bg-teal-50 text-[#4D9699] shadow-sm border border-teal-100"
+                : "text-gray-500 hover:text-[#2D3436] hover:bg-white/50 transition-colors"
+            }`}
+          >
+            Billing & Payments
           </button>
         </div>
       </div>
@@ -512,22 +569,22 @@ export default function Dashboard() {
               <table className="w-full text-left border-collapse">
                 <thead>
                   <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase">
                       Parent / Contact
                     </th>
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase">
                       Child Details
                     </th>
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase">
                       Program
                     </th>
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase">
                       Submitted
                     </th>
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider text-center">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase text-center">
                       Status
                     </th>
-                    <th className="p-5 text-xs font-black text-gray-400 uppercase tracking-wider text-right">
+                    <th className="p-5 text-xs font-bold tracking-wider text-gray-500 uppercase text-right">
                       Actions
                     </th>
                   </tr>
@@ -558,7 +615,7 @@ export default function Dashboard() {
                         className="hover:bg-blue-50/40 transition-colors group"
                       >
                         <td className="p-5">
-                          <div className="font-bold text-gray-900">
+                          <div className="font-bold text-[#2D3436]">
                             {item.parentName}
                           </div>
                           <div className="text-sm text-gray-500">
@@ -566,14 +623,14 @@ export default function Dashboard() {
                           </div>
                         </td>
                         <td className="p-5">
-                          <div className="text-gray-700 font-medium">
+                          <div className="text-[#2D3436] font-medium">
                             {item.childName}
                           </div>
                           <div className="text-xs text-gray-400">
                             Age: {item.childAge}
                           </div>
                         </td>
-                        <td className="p-5 text-gray-600 font-medium">
+                        <td className="p-5 text-[#2D3436] font-medium">
                           {item.programOfInterest}
                         </td>
                         <td className="p-5 text-gray-500 text-sm">
@@ -587,17 +644,17 @@ export default function Dashboard() {
                             onChange={(e) =>
                               handleStatusChange(item._id, e.target.value)
                             }
-                            className={`text-xs font-black uppercase px-3 py-1 rounded-full border outline-none cursor-pointer transition-all
+                            className={`text-xs font-bold uppercase px-3 py-1 rounded-full border outline-none cursor-pointer transition-all
     ${
       item.status === "Enrolled"
-        ? "bg-green-50 text-green-600 border-green-100"
+        ? "bg-green-50 text-green-700 border-green-200"
         : item.status === "Contacted"
-          ? "bg-blue-50 text-blue-600 border-blue-100"
+          ? "bg-blue-50 text-blue-700 border-blue-200"
           : item.status === "Rejected"
-            ? "bg-red-50 text-red-600 border-red-100"
+            ? "bg-red-50 text-red-700 border-red-200"
             : item.status === "Closed"
-              ? "bg-gray-100 text-gray-600 border-gray-200"
-              : "bg-amber-50 text-amber-600 border-amber-100"
+              ? "bg-gray-100 text-gray-700 border-gray-200"
+              : "bg-amber-50 text-amber-700 border-amber-200"
     }`}
                           >
                             <option value="Pending">Pending</option>
@@ -658,152 +715,154 @@ export default function Dashboard() {
       )}
 
       {activeTab === "staff" && (
-        <div className="max-w-7xl mx-auto bg-white rounded-3xl shadow-sm border border-gray-100 p-8">
-          <h2 className="text-xl font-black text-gray-900 mb-6">
-            Register New Staff Member
-          </h2>
-          <form onSubmit={handleStaffSubmit} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Name
-                </label>
-                <input
-                  type="text"
-                  required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.name}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, name: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Email
-                </label>
-                <input
-                  type="email"
-                  required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.email}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, email: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Password
-                </label>
-                <input
-                  type="password"
-                  required
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.password}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, password: e.target.value })
-                  }
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Role
-                </label>
-                <select
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.role}
-                  onChange={(e) =>
-                    setStaffForm({
-                      ...staffForm,
-                      role: e.target.value,
-                      classId:
-                        e.target.value === "teacher" ? staffForm.classId : "",
-                    })
-                  }
-                >
-                  <option value="teacher">Teacher</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              {staffForm.role === "teacher" && (
+        <div className="max-w-7xl mx-auto flex flex-col gap-8">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
+            <h2 className="text-xl font-black text-gray-900 mb-6">
+              Register New Staff Member
+            </h2>
+            <form onSubmit={handleStaffSubmit} className="space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                  <label className="block text-sm font-bold text-gray-700 mb-2">
-                    Assigned Class
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.name}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, name: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Email
+                  </label>
+                  <input
+                    type="email"
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.email}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, email: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Password
+                  </label>
+                  <input
+                    type="password"
+                    required
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.password}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, password: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Role
                   </label>
                   <select
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                    value={staffForm.classId}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.role}
                     onChange={(e) =>
-                      setStaffForm({ ...staffForm, classId: e.target.value })
+                      setStaffForm({
+                        ...staffForm,
+                        role: e.target.value,
+                        classId:
+                          e.target.value === "teacher" ? staffForm.classId : "",
+                      })
                     }
                   >
-                    <option value="">No class assigned</option>
-                    {classes.map((cls) => (
-                      <option key={cls._id} value={cls._id}>
-                        {cls.className} - {cls.ageGroup}
-                      </option>
-                    ))}
+                    <option value="teacher">Teacher</option>
+                    <option value="admin">Admin</option>
                   </select>
                 </div>
-              )}
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Phone
-                </label>
-                <input
-                  type="tel"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.phone}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, phone: e.target.value })
-                  }
-                />
+                {staffForm.role === "teacher" && (
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                      Assigned Class
+                    </label>
+                    <select
+                      className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                      value={staffForm.classId}
+                      onChange={(e) =>
+                        setStaffForm({ ...staffForm, classId: e.target.value })
+                      }
+                    >
+                      <option value="">No class assigned</option>
+                      {classes.map((cls) => (
+                        <option key={cls._id} value={cls._id}>
+                          {cls.className} - {cls.ageGroup}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                )}
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Phone
+                  </label>
+                  <input
+                    type="tel"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.phone}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, phone: e.target.value })
+                    }
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Salary
+                  </label>
+                  <input
+                    type="number"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.salary}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, salary: e.target.value })
+                    }
+                  />
+                </div>
+                <div className="md:col-span-2">
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Hire Date
+                  </label>
+                  <input
+                    type="date"
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                    value={staffForm.hireDate}
+                    onChange={(e) =>
+                      setStaffForm({ ...staffForm, hireDate: e.target.value })
+                    }
+                  />
+                </div>
               </div>
-              <div>
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Salary
-                </label>
-                <input
-                  type="number"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.salary}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, salary: e.target.value })
-                  }
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-bold text-gray-700 mb-2">
-                  Hire Date
-                </label>
-                <input
-                  type="date"
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-                  value={staffForm.hireDate}
-                  onChange={(e) =>
-                    setStaffForm({ ...staffForm, hireDate: e.target.value })
-                  }
-                />
-              </div>
-            </div>
-            <button
-              type="submit"
-              disabled={staffLoading}
-              className="w-full md:w-auto px-8 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {staffLoading ? "Registering..." : "Register Staff"}
-            </button>
-            {staffMessage.text && (
-              <p
-                className={`text-sm font-medium ${staffMessage.type === "success" ? "text-green-600" : "text-red-600"}`}
+              <button
+                type="submit"
+                disabled={staffLoading}
+                className="bg-[#4D9699] hover:bg-[#3d7a7c] text-white font-bold py-3 px-8 rounded-xl transition-colors w-full md:w-auto mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {staffMessage.text}
-              </p>
-            )}
-          </form>
+                {staffLoading ? "Registering..." : "Register Staff"}
+              </button>
+              {staffMessage.text && (
+                <p
+                  className={`text-sm font-medium ${staffMessage.type === "success" ? "text-green-600" : "text-red-600"}`}
+                >
+                  {staffMessage.text}
+                </p>
+              )}
+            </form>
+          </div>
 
-          <div className="rounded-3xl bg-white p-8 shadow-sm border border-gray-100">
+          <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
             <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-6">
               <div>
                 <h2 className="text-xl font-black text-gray-900">
@@ -821,17 +880,17 @@ export default function Dashboard() {
             <div className="overflow-x-auto">
               <table className="w-full text-left border-collapse">
                 <thead>
-                  <tr className="bg-gray-50 border-b border-gray-100">
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                  <tr className="bg-gray-50">
+                    <th className="p-4 text-xs font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100 pb-3">
                       Teacher
                     </th>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider hidden md:table-cell">
+                    <th className="p-4 text-xs font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100 pb-3 hidden md:table-cell">
                       Email
                     </th>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-4 text-xs font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100 pb-3">
                       Assigned Class
                     </th>
-                    <th className="p-4 text-xs font-black text-gray-400 uppercase tracking-wider">
+                    <th className="p-4 text-xs font-bold tracking-wider text-gray-500 uppercase border-b border-gray-100 pb-3">
                       Action
                     </th>
                   </tr>
@@ -858,10 +917,10 @@ export default function Dashboard() {
                           className="hover:bg-slate-50 transition-colors"
                         >
                           <td className="p-4">
-                            <div className="font-bold text-gray-900">
+                            <div className="text-[#2D3436] font-semibold">
                               {teacher.name}
                             </div>
-                            <div className="text-xs uppercase tracking-[0.18em] text-slate-500">
+                            <div className="text-xs text-gray-500 uppercase tracking-wider">
                               {teacher.role}
                             </div>
                           </td>
@@ -877,7 +936,7 @@ export default function Dashboard() {
                                   e.target.value,
                                 )
                               }
-                              className="w-full rounded-2xl border border-gray-200 bg-white px-4 py-3 text-sm text-gray-700 outline-none focus:border-blue-500"
+                              className="bg-white border border-gray-200 rounded-lg px-3 py-2 text-sm text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 w-full max-w-[200px]"
                             >
                               <option value="">Unassigned</option>
                               {classes.map((cls) => (
@@ -888,16 +947,27 @@ export default function Dashboard() {
                             </select>
                           </td>
                           <td className="p-4">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                handleSaveTeacherClass(teacher._id)
-                              }
-                              disabled={assignLoading}
-                              className="rounded-2xl bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700 disabled:opacity-60 disabled:cursor-not-allowed"
-                            >
-                              Save
-                            </button>
+                            <div className="flex items-center gap-3">
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleSaveTeacherClass(teacher._id)
+                                }
+                                disabled={assignLoading}
+                                className="bg-teal-50 text-teal-700 hover:bg-teal-100 border border-teal-100 rounded-lg px-4 py-1.5 text-sm font-semibold transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                              >
+                                Save
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteStaff(teacher._id)}
+                                disabled={assignLoading}
+                                className="p-2 text-gray-400 hover:text-red-600 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                                title="Delete Staff"
+                              >
+                                <Trash2 size={20} />
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -1022,6 +1092,18 @@ export default function Dashboard() {
               </tbody>
             </table>
           </div>
+        </div>
+      )}
+
+      {activeTab === "billing" && (
+        <div className="max-w-7xl mx-auto">
+          <Billing />
+        </div>
+      )}
+
+      {activeTab === "tours" && (
+        <div className="max-w-7xl mx-auto">
+          <AdminTours />
         </div>
       )}
 

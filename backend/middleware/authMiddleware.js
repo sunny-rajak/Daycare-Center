@@ -35,5 +35,7 @@ const authorizeRoles = (...roles) => {
 };
 
 const admin = authorizeRoles("admin");
+const teacher = authorizeRoles("teacher");
+const parent = authorizeRoles("parent");
 
-module.exports = { protect, admin, authorizeRoles };
+module.exports = { protect, admin, teacher, parent, authorizeRoles };

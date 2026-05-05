@@ -8,6 +8,10 @@ import Login from "./pages/admin/Login";
 import Dashboard from "./pages/admin/Dashboard";
 import StaffDashboard from "./pages/admin/StaffDashboard";
 
+// Parent Pages
+import ParentDashboard from "./pages/parent/ParentDashboard";
+import ParentRegister from "./pages/parent/ParentRegister";
+
 // Components
 import ProtectedRoute from "./components/ProtectedRoute";
 
@@ -19,7 +23,7 @@ function App() {
         <Route path="/" element={<Home />} />
 
         {/* 2. Login Route: Staff enters credentials here */}
-        <Route path="/admin/login" element={<Login />} />
+        <Route path="/login" element={<Login />} />
 
         {/* 3. Protected Route: Only accessible if logged in as Admin */}
         <Route
@@ -41,7 +45,20 @@ function App() {
           }
         />
 
-        {/* 5. Optional: 404 Page or Redirect */}
+        {/* 5. Parent Dashboard: Only accessible if logged in as Parent */}
+        <Route
+          path="/parent-dashboard"
+          element={
+            <ProtectedRoute allowedRoles={["parent"]}>
+              <ParentDashboard />
+            </ProtectedRoute>
+          }
+        />
+
+        {/* 6. Parent Registration: Public route for new parents */}
+        <Route path="/parent/register" element={<ParentRegister />} />
+
+        {/* 6. Optional: 404 Page or Redirect */}
         <Route
           path="*"
           element={<div className="p-20 text-center">404 - Page Not Found</div>}

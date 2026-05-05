@@ -2,6 +2,7 @@ import axios from "axios";
 
 const API_URL = "http://localhost:5000/api/inquiry";
 const USERS_API_URL = "http://localhost:5000/api/users";
+const ADMIN_API_URL = "http://localhost:5000/api/admin";
 const CLASSES_API_URL = "http://localhost:5000/api/classes";
 
 const getAuthConfig = () => {
@@ -40,7 +41,7 @@ export const registerStaff = async (staffData) => {
   }, {});
 
   const response = await axios.post(
-    `${USERS_API_URL}/register`,
+    `${ADMIN_API_URL}/register-staff`,
     payload,
     getAuthConfig(),
   );

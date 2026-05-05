@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { Trash2 } from "lucide-react";
 import {
   getAllClasses,
   createClass,
@@ -95,10 +96,10 @@ export default function ClassManager() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-8">
-      <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-8">
+      <div className="bg-white rounded-2xl p-6 md:p-8 shadow-sm border border-gray-100">
         <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-6">
           <div>
-            <h2 className="text-2xl font-black text-gray-900">
+            <h2 className="text-2xl font-black text-[#2D3436]">
               Manage Classes
             </h2>
             <p className="text-gray-500 mt-2">
@@ -112,13 +113,13 @@ export default function ClassManager() {
           className="grid grid-cols-1 md:grid-cols-3 gap-4"
         >
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-600 mb-1.5">
               Class Name
             </label>
             <select
               value={form.className}
               onChange={(e) => setForm({ ...form, className: e.target.value })}
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
             >
               <option value="Infant">Infant</option>
               <option value="Toddler">Toddler</option>
@@ -126,19 +127,19 @@ export default function ClassManager() {
             </select>
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-600 mb-1.5">
               Age Group
             </label>
             <input
               value={form.ageGroup}
               onChange={(e) => setForm({ ...form, ageGroup: e.target.value })}
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               placeholder="e.g. 3m - 15m"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-bold text-gray-700 mb-2">
+            <label className="block text-sm font-semibold text-gray-600 mb-1.5">
               Capacity
             </label>
             <input
@@ -146,15 +147,15 @@ export default function ClassManager() {
               min="1"
               value={form.capacity}
               onChange={(e) => setForm({ ...form, capacity: e.target.value })}
-              className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
               required
             />
           </div>
-          <div className="md:col-span-3 flex justify-end">
+          <div className="md:col-span-3 flex justify-end mt-2">
             <button
               type="submit"
               disabled={saving}
-              className="px-6 py-3 bg-blue-600 text-white font-bold rounded-2xl hover:bg-blue-700 transition-all disabled:opacity-50"
+              className="bg-[#4D9699] hover:bg-[#3d7a7c] text-white font-bold py-2.5 px-8 rounded-xl transition-colors disabled:opacity-50"
             >
               {saving ? "Saving..." : "Add Class"}
             </button>
@@ -180,38 +181,38 @@ export default function ClassManager() {
             return (
               <div
                 key={cls._id}
-                className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm"
+                className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col"
               >
                 <div className="flex items-start justify-between gap-4 mb-4">
                   <div>
-                    <h3 className="text-xl font-black text-gray-900">
+                    <h3 className="text-xl font-bold text-[#2D3436]">
                       {cls.className}
                     </h3>
                     <p className="text-sm text-gray-500">{cls.ageGroup}</p>
                   </div>
-                  <span className="rounded-full bg-blue-50 px-3 py-1 text-xs font-black uppercase tracking-wider text-blue-600">
+                  <span className="bg-teal-50 text-teal-700 border border-teal-100 px-3 py-1 rounded-full text-sm font-bold">
                     {occupancy}/{cls.capacity}
                   </span>
                 </div>
 
-                <div className="mb-4 space-y-2">
+                <div className="mb-4 space-y-2 flex-1">
                   <div className="text-sm text-gray-500">Current occupancy</div>
-                  <div className="h-3 w-full rounded-full bg-gray-100 overflow-hidden">
+                  <div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-green-500"
+                      className="h-2.5 rounded-full bg-[#4D9699] transition-all duration-500"
                       style={{
                         width: `${Math.min((occupancy / cls.capacity) * 100, 100)}%`,
                       }}
                     />
                   </div>
-                  <div className="text-xs text-gray-400">
+                  <div className="text-sm text-gray-500">
                     {remaining} spots remaining
                   </div>
                 </div>
 
                 {editingClassId === cls._id ? (
-                  <div className="space-y-3">
-                    <label className="block text-sm font-bold text-gray-700">
+                  <div className="mt-auto pt-4 border-t border-gray-50 space-y-3">
+                    <label className="block text-sm font-semibold text-gray-600 mb-1.5">
                       Capacity
                     </label>
                     <input
@@ -219,45 +220,42 @@ export default function ClassManager() {
                       min="1"
                       value={editingCapacity}
                       onChange={(e) => setEditingCapacity(e.target.value)}
-                      className="w-full rounded-2xl border border-gray-200 bg-gray-50 px-4 py-3 outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full bg-gray-50/50 border border-gray-200 rounded-xl px-4 py-2.5 text-[#2D3436] focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500"
                     />
                     <div className="flex gap-3">
                       <button
                         type="button"
                         onClick={() => handleSaveEdit(cls._id)}
                         disabled={saving}
-                        className="flex-1 rounded-2xl bg-green-600 px-4 py-3 text-white font-bold hover:bg-green-700 transition-all disabled:opacity-50"
+                        className="flex-1 bg-[#4D9699] hover:bg-[#3d7a7c] text-white text-sm font-bold py-2 rounded-xl transition-colors disabled:opacity-50"
                       >
                         Save
                       </button>
                       <button
                         type="button"
                         onClick={cancelEdit}
-                        className="flex-1 rounded-2xl border border-gray-200 bg-white px-4 py-3 font-bold text-gray-700 hover:bg-gray-50 transition-all"
+                        className="flex-1 bg-white border border-gray-200 hover:bg-gray-50 text-[#2D3436] text-sm font-bold py-2 rounded-xl transition-colors cursor-pointer"
                       >
                         Cancel
                       </button>
                     </div>
                   </div>
                 ) : (
-                  <div className="flex flex-col gap-3">
-                    <div className="text-sm text-gray-700">
-                      Capacity: {cls.capacity}
-                    </div>
-                    <div className="flex gap-3">
+                  <div className="mt-auto pt-4 border-t border-gray-50">
+                    <div className="flex items-center gap-3">
                       <button
                         type="button"
                         onClick={() => beginEdit(cls)}
-                        className="flex-1 rounded-2xl bg-blue-600 px-4 py-3 text-white font-bold hover:bg-blue-700 transition-all"
+                        className="flex-1 bg-white border border-gray-200 hover:border-teal-300 hover:bg-teal-50 text-[#2D3436] hover:text-teal-700 text-sm font-bold py-2 rounded-xl transition-colors text-center cursor-pointer"
                       >
                         Edit Capacity
                       </button>
                       <button
                         type="button"
                         onClick={() => handleDelete(cls._id)}
-                        className="flex-1 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-red-700 font-bold hover:bg-red-100 transition-all"
+                        className="p-2 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors cursor-pointer"
                       >
-                        Delete
+                        <Trash2 size={20} />
                       </button>
                     </div>
                   </div>

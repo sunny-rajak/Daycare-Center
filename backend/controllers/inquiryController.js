@@ -208,7 +208,9 @@ const enrollChild = async (req, res) => {
       age: ageNumber,
       gender: "Other", // Default, can be updated later
       parentId: parent._id,
+      parentEmail: inquiry.email,
       classId: selectedClass._id,
+      status: "Enrolled",
     });
     console.log("Child created:", child._id, child.name);
 

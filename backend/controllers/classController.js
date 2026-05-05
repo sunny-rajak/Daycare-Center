@@ -26,8 +26,8 @@ const getClasses = async (req, res) => {
 // Create a new class
 const createClass = async (req, res) => {
   try {
-    const { className, ageGroup, capacity } = req.body;
-    const newClass = new Class({ className, ageGroup, capacity });
+    const { className, ageGroup, capacity, monthlyFee } = req.body;
+    const newClass = new Class({ className, ageGroup, capacity, monthlyFee });
     const savedClass = await newClass.save();
     res.status(201).json({ success: true, data: savedClass });
   } catch (error) {
@@ -43,12 +43,17 @@ const createClass = async (req, res) => {
 const updateClass = async (req, res) => {
   try {
     const { id } = req.params;
-    const { className, ageGroup, capacity } = req.body;
-    const updatedClass = await Class.findByIdAndUpdate(
-      id,
-      { className, ageGroup, capacity },
-      { new: true, runValidators: true },
-    );
+    const { className, ageGroup, capacity, monthlyFee } = req.body;
+    const updatePayload = {};
+    if (className !== undefined) updatePayload.className = className;
+    if (ageGroup !== undefined) updatePayload.ageGroup = ageGroup;
+    if (capacity !== undefined) updatePayload.capacity = capacity;
+    if (monthlyFee !== undefined) updatePayload.monthlyFee = monthlyFee;
+
+    const updatedClass = await Class.findByIdAndUpdate(id, updatePayload, {
+      new: true,
+      runValidators: true,
+    });
 
     if (!updatedClass) {
       return res
@@ -93,17 +98,54 @@ const seedClasses = async (req, res) => {
   try {
     const existingCount = await Class.countDocuments();
     if (existingCount > 0) {
+      const feeMap = {
+        Infant: 1500,
+        Toddler: 1200,
+        Preschool: 1000,
+      };
+
+      const existingClasses = await Class.find({});
+      const updatedClasses = [];
+
+      for (const cls of existingClasses) {
+        const sampleFee = feeMap[cls.className];
+        if (
+          sampleFee != null &&
+          (cls.monthlyFee === undefined || cls.monthlyFee === null)
+        ) {
+          cls.monthlyFee = sampleFee;
+          await cls.save();
+          updatedClasses.push(cls);
+        }
+      }
+
       return res.status(200).json({
         success: true,
-        message: "Classes collection already seeded",
-        count: existingCount,
+        message: "Existing classes updated with sample fees",
+        count: updatedClasses.length,
+        data: updatedClasses,
       });
     }
 
     const defaultClasses = [
-      { className: "Infant", ageGroup: "3m - 15m", capacity: 10 },
-      { className: "Toddler", ageGroup: "16m - 33m", capacity: 12 },
-      { className: "Preschool", ageGroup: "33m - 5y", capacity: 20 },
+      {
+        className: "Infant",
+        ageGroup: "3m - 15m",
+        capacity: 10,
+        monthlyFee: 1500,
+      },
+      {
+        className: "Toddler",
+        ageGroup: "16m - 33m",
+        capacity: 12,
+        monthlyFee: 1200,
+      },
+      {
+        className: "Preschool",
+        ageGroup: "33m - 5y",
+        capacity: 20,
+        monthlyFee: 1000,
+      },
     ];
 
     const insertedClasses = await Class.insertMany(defaultClasses);

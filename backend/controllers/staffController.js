@@ -92,9 +92,7 @@ const getTeacherDashboard = async (req, res) => {
       });
     }
 
-    const students = await Child.find({ classId: assignedClass._id })
-      .select("name dateOfBirth gender")
-      .lean();
+    const students = await Child.find({ classId: assignedClass._id }).lean();
 
     res.json({
       success: true,

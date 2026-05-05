@@ -82,7 +82,7 @@ export default function PublicInquiryForm() {
                 onChange={handleChange}
                 type="text"
                 placeholder="John Doe"
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
@@ -96,7 +96,7 @@ export default function PublicInquiryForm() {
                 onChange={handleChange}
                 type="email"
                 placeholder="john@example.com"
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all"
               />
             </div>
 
@@ -112,7 +112,7 @@ export default function PublicInquiryForm() {
                 onChange={handleChange}
                 type="text"
                 placeholder="Junior Doe"
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all"
               />
             </div>
             <div className="space-y-2">
@@ -123,7 +123,7 @@ export default function PublicInquiryForm() {
                 name="programOfInterest"
                 value={formData.programOfInterest}
                 onChange={handleChange}
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all bg-white font-medium text-gray-700"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all font-medium text-gray-700"
               >
                 <option value="Infant">Infant Program</option>
                 <option value="Toddler">Toddler Program</option>
@@ -142,7 +142,7 @@ export default function PublicInquiryForm() {
                 onChange={handleChange}
                 type="tel"
                 placeholder="123-456-7890"
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all"
               />
             </div>
 
@@ -157,7 +157,7 @@ export default function PublicInquiryForm() {
                 onChange={handleChange}
                 type="number"
                 placeholder="2"
-                className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all"
               />
             </div>
           </div>
@@ -174,14 +174,14 @@ export default function PublicInquiryForm() {
               onChange={handleChange}
               rows="4"
               placeholder="Tell us about your child's needs..."
-              className="w-full px-5 py-4 rounded-2xl border-none ring-1 ring-gray-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all resize-none"
+              className="w-full px-5 py-4 rounded-xl bg-gray-50 border border-gray-200 focus:ring-2 focus:ring-[#4D9699] outline-none transition-all resize-none"
             ></textarea>
           </div>
 
           <button
             disabled={loading}
             type="submit"
-            className="w-full py-5 bg-blue-600 text-white font-black text-lg rounded-2xl shadow-lg shadow-blue-200 hover:bg-blue-700 hover:-translate-y-1 active:scale-95 transition-all disabled:opacity-50"
+            className="w-full py-5 bg-[#4D9699] hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white rounded-full font-semibold text-lg disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Send Inquiry Now"}
           </button>

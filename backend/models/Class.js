@@ -9,6 +9,7 @@ const classSchema = new mongoose.Schema(
     },
     ageGroup: { type: String, required: true },
     capacity: { type: Number, required: true, min: 1 },
+    monthlyFee: { type: Number, required: true, min: 0 },
   },
   { timestamps: true },
 );
