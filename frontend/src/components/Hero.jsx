@@ -85,26 +85,26 @@ export default function Hero() {
       <section id="hero" className="pt-12 md:pt-16 pb-20 bg-[#fdfaf1]">
         <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-8">
-            <h1 className="text-6xl md:text-7xl font-extrabold text-[#2D3436] leading-tight">
-              Where Every <br />
+            <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold text-[#2D3436] leading-tight">
+              Where Every <br className="hidden md:block" />
               <span className="text-[#4D9699]">Child Shines.</span>
             </h1>
 
-            <p className="text-lg text-gray-500 max-w-md leading-relaxed">
+            <p className="text-lg text-gray-700 max-w-md leading-relaxed">
               Safe, nurturing, and fun-filled childcare services for your little
               ones. We focus on growth, creativity, and early learning.
             </p>
 
-            <div className="flex gap-4">
+            <div className="flex flex-col sm:flex-row gap-4 mt-8 w-full max-w-md mx-auto sm:mx-0">
               <button
                 onClick={() => setIsTourModalOpen(true)}
-                className="px-8 py-4 bg-[#4D9699] text-white font-bold rounded-full shadow-lg shadow-[#4D9699]/30 hover:bg-opacity-90 transition-all cursor-pointer"
+                className="w-full sm:w-auto px-8 py-4 bg-[#4D9699] text-white font-bold rounded-full shadow-lg shadow-[#4D9699]/30 hover:bg-opacity-90 transition-all cursor-pointer"
               >
                 Book a Tour
               </button>
               <button
                 onClick={() => setIsGalleryOpen(true)}
-                className="px-8 py-4 bg-white font-bold rounded-full border border-[#4D9699] text-[#4D9699] hover:bg-[#4D9699] hover:text-white transition-all"
+                className="w-full sm:w-auto px-8 py-4 bg-white font-bold rounded-full border border-[#4D9699] text-[#4D9699] hover:bg-[#4D9699] hover:text-white transition-all"
               >
                 View Gallery
               </button>
@@ -113,7 +113,7 @@ export default function Hero() {
 
           <div className="relative">
             {/* Recreating the rounded image look from your screenshot */}
-            <div className="aspect-square bg-white p-4 rounded-[3rem] shadow-xl rotate-3">
+            <div className="aspect-square bg-white p-4 rounded-[3rem] shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
               <div className="w-full h-full rounded-[2.5rem] bg-gray-100 overflow-hidden">
                 <img
                   src="https://images.unsplash.com/photo-1503454537195-1dcabb73ffb9?auto=format&fit=crop&q=80&w=1000"

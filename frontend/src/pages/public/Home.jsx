@@ -3,6 +3,7 @@ import Hero from "../../components/Hero";
 import Navbar from "../../components/Navbar";
 import Programs from "../../components/Programs";
 import ValueProp from "../../components/ValueProp";
+import AboutUs from "../../components/AboutUs";
 import PublicInquiryForm from "../../components/PublicInquiryForm";
 import Testimonials from "../../components/Testimonials";
 
@@ -12,6 +13,7 @@ export default function Home() {
       <Navbar />
       <Hero />
       <ValueProp />
+      <AboutUs />
       <Programs />
       <Testimonials />
       <PublicInquiryForm />

@@ -181,7 +181,7 @@ export default function PublicInquiryForm() {
           <button
             disabled={loading}
             type="submit"
-            className="w-full py-5 bg-[#4D9699] hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white rounded-full font-semibold text-lg disabled:opacity-50"
+            className="w-full block py-5 bg-[#4D9699] hover:-translate-y-1 hover:shadow-lg transition-all duration-300 text-white rounded-full font-semibold text-lg disabled:opacity-50"
           >
             {loading ? "Submitting..." : "Send Inquiry Now"}
           </button>
