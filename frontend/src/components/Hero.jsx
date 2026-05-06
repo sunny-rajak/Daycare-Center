@@ -83,8 +83,8 @@ export default function Hero() {
   return (
     <>
       <section id="hero" className="pt-12 md:pt-16 pb-20 bg-[#fdfaf1]">
-        <div className="max-w-7xl mx-auto px-6 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-          <div className="space-y-8">
+        <div className="max-w-7xl mx-auto px-6 flex flex-col md:flex-row items-center justify-between gap-8 md:gap-12">
+          <div className="space-y-8 w-full md:w-1/2 text-left">
             <h1 className="text-4xl md:text-5xl lg:text-[3.5rem] xl:text-6xl font-extrabold text-[#2D3436] leading-tight">
               Where Every <br className="hidden md:block" />
               <span className="text-[#4D9699]">Child Shines.</span>
@@ -111,7 +111,7 @@ export default function Hero() {
             </div>
           </div>
 
-          <div className="relative">
+          <div className="relative w-full md:w-1/2">
             {/* Recreating the rounded image look from your screenshot */}
             <div className="aspect-square bg-white p-4 rounded-[3rem] shadow-xl transform rotate-3 hover:rotate-0 transition-transform duration-500">
               <div className="w-full h-full rounded-[2.5rem] bg-gray-100 overflow-hidden">
