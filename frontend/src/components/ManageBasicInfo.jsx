@@ -96,7 +96,7 @@ const ManageBasicInfo = ({ child, onSave }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full bg-[#4D9699] text-white rounded-full py-3 font-semibold text-lg hover:bg-opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition mt-4"
+          className="w-full px-4 py-3 text-sm font-semibold text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-xl transition-colors mt-4 disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : "Save Basic Info"}
         </button>

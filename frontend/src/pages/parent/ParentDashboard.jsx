@@ -19,6 +19,7 @@ import {
   Phone,
   ShieldCheck,
   Leaf,
+  X,
 } from "lucide-react";
 
 const CARD =
@@ -230,14 +231,14 @@ export default function ParentDashboard() {
     <div className="min-h-screen bg-[#FDFBF7] p-4 md:p-8 font-sans">
       {/* Modal Overlay for Safety Profile */}
       {selectedChildForSafety && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-4">
-          <div className="relative bg-white w-full max-w-lg md:max-w-2xl max-h-[90vh] overflow-y-auto rounded-[2rem] shadow-2xl p-6 md:p-8 transform transition-all custom-scrollbar">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-0 md:p-4">
+          <div className="w-full h-full md:w-auto md:h-auto md:max-w-3xl max-h-[100dvh] md:max-h-[85vh] bg-white md:rounded-2xl shadow-xl overflow-y-auto relative p-6 md:p-8 custom-scrollbar">
             {/* Close Button */}
             <button
               onClick={() => setSelectedChildForSafety(null)}
-              className="absolute top-6 right-6 text-gray-400 hover:text-gray-700 bg-gray-50 hover:bg-gray-100 rounded-full p-2 transition-colors"
+              className="absolute top-4 right-4 z-10 text-gray-500 hover:text-red-600 bg-gray-100 hover:bg-red-50 rounded-full p-2 shadow-sm transition-all duration-200"
             >
-              <LogOut size={20} className="rotate-180" />
+              <X size={24} />
             </button>
             <ManageBasicInfo
               child={selectedChildForSafety}
@@ -258,69 +259,69 @@ export default function ParentDashboard() {
 
       <div className="max-w-6xl mx-auto">
         {/* ── Header ── */}
-        <header className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
-          <div>
-            <p className="text-sm text-gray-400 font-medium">{today}</p>
-            <h1 className="text-2xl md:text-3xl font-extrabold text-[#2D3436] mt-1">
+        <header className="flex justify-between items-center w-full mb-6">
+          <div className="flex flex-col">
+            <h1 className="text-2xl md:text-3xl font-extrabold text-[#2D3436]">
               Welcome back, {parent.name.split(" ")[0]}
             </h1>
-            <p className="text-sm text-gray-400 mt-1">
-              {parent.email} · {parent.phone || "No phone on file"}
-            </p>
-
-            {/* Child profile pills */}
-            {children.length > 0 && (
-              <div className="flex flex-wrap gap-2 mt-4">
-                {children.map((child) => (
-                  <div
-                    key={child._id}
-                    className="bg-white rounded-full px-4 py-2 shadow-sm border border-gray-100 inline-flex items-center gap-3"
-                  >
-                    <div className="w-8 h-8 rounded-full bg-[#4D9699] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
-                      {child.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div className="leading-tight">
-                      <p className="text-sm font-bold text-[#2D3436]">
-                        {child.name}
-                      </p>
-                      <p className="text-xs text-gray-400">
-                        {child.classId?.className || "No class"} · Age{" "}
-                        {child.age}
-                      </p>
-                    </div>
-                    <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full px-2 py-0.5">
-                      {child.status}
-                    </span>
-                  </div>
-                ))}
-              </div>
-            )}
           </div>
 
           <button
             onClick={handleLogout}
-            className="w-full sm:w-auto self-start sm:self-auto rounded-2xl border border-red-200 bg-red-50 px-5 py-2.5 text-sm font-semibold text-red-600 hover:bg-red-100 transition-all"
+            className="p-2 text-gray-500 hover:text-red-600 bg-white hover:bg-red-50 rounded-full shadow-sm transition-colors"
+            title="Logout"
           >
-            Logout
+            <LogOut size={20} />
           </button>
         </header>
 
+        {/* Child Profile Card */}
+        {children.length > 0 && (
+          <div className="flex flex-col">
+            {children.map((child) => (
+              <div
+                key={child._id}
+                className="w-full flex items-center justify-between p-4 bg-teal-50/50 border border-teal-100 rounded-2xl mb-8"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-full bg-[#4D9699] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                    {child.name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="leading-tight">
+                    <p className="text-sm font-bold text-[#2D3436]">
+                      {child.name}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-0.5">
+                      {child.classId?.className || "No class"} · Age {child.age}
+                    </p>
+                  </div>
+                </div>
+                <span className="text-xs font-semibold bg-emerald-100 text-emerald-700 rounded-full px-3 py-1">
+                  {child.status}
+                </span>
+              </div>
+            ))}
+          </div>
+        )}
+
         {/* ── Bento Grid ── */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mt-6 md:mt-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8 items-start mt-8">
           {/* ── Daily Activity Feed (2 cols) ── */}
-          <section className={`${CARD} lg:col-span-2 flex flex-col`}>
-            <div className="flex items-center justify-between mb-5">
-              <div>
+          <section
+            className={`${CARD} md:col-span-1 lg:col-span-2 w-full flex flex-col self-start`}
+          >
+            <div className="flex flex-col gap-1 mb-6 w-full">
+              <div className="flex justify-between items-start sm:items-center w-full">
                 <h2 className="text-xl font-bold text-[#2D3436]">
                   Today's Updates
                 </h2>
-                <p className="text-sm text-gray-400 mt-0.5">
-                  Latest from your children's day
-                </p>
+                <span className="text-xs font-bold bg-teal-50 text-[#4D9699] rounded-full px-3 py-1 border border-teal-100">
+                  {recentActivities.length} updates
+                </span>
               </div>
-              <span className="text-xs font-bold bg-teal-50 text-[#4D9699] rounded-full px-3 py-1 border border-teal-100">
-                {recentActivities.length} updates
-              </span>
+              <p className="text-left text-sm text-gray-500">
+                Daily activity feed &bull; {today}
+              </p>
             </div>
 
             {recentActivities.length === 0 ? (
@@ -387,62 +388,37 @@ export default function ParentDashboard() {
           </section>
 
           {/* ── Utility Column (1 col) ── */}
-          <div className="flex flex-col gap-6 lg:col-span-1">
-            {/* Tuition & Billing */}
+          <div className="flex flex-col gap-6 md:col-span-1 lg:col-span-1 w-full">
+            {/* Attendance */}
             <div className={CARD}>
               <h2 className="text-xl font-bold text-[#2D3436] mb-1">
-                Tuition & Billing
+                Attendance
               </h2>
               <p className="text-xs text-gray-400 mb-5">
-                Current account balance
+                Days present this month
               </p>
 
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">
-                Current Balance
-              </p>
-              <div className="flex items-center gap-3 my-2">
-                <p className="text-4xl font-extrabold text-[#2D3436]">
-                  ₹{billingOverview.totalPending.toLocaleString("en-IN")}
+              {Object.keys(attendanceSummary).length === 0 ? (
+                <p className="text-sm text-gray-400 italic">
+                  No attendance data yet.
                 </p>
-                {billingOverview.totalPending > 0 ? (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
-                    Payment Due
-                  </span>
-                ) : (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600">
-                    All Paid Up
-                  </span>
-                )}
-              </div>
-
-              {billingOverview.pending.length > 0 && (
-                <div className="mt-3 space-y-1.5">
-                  {billingOverview.pending.slice(0, 2).map((invoice) => (
+              ) : (
+                <div className="space-y-3">
+                  {Object.values(attendanceSummary).map((summary, idx) => (
                     <div
-                      key={invoice._id}
-                      className="flex items-center justify-between text-xs bg-gray-50 rounded-xl px-3 py-2 border border-gray-100"
+                      key={idx}
+                      className="flex flex-wrap justify-between items-center gap-3 bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100"
                     >
-                      <span className="text-gray-500 truncate max-w-[60%]">
-                        {invoice.childId?.name} — {invoice.description}
-                      </span>
-                      <span className="font-bold text-[#2D3436]">
-                        ₹{invoice.amount}
+                      <p className="font-semibold text-[#2D3436] text-sm">
+                        {summary.childName}
+                      </p>
+                      <span className="rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">
+                        {summary.daysPresent} days
                       </span>
                     </div>
                   ))}
                 </div>
               )}
-
-              <button
-                onClick={() => handlePayment(billingOverview.totalPending)}
-                disabled={billingOverview.totalPending === 0}
-                className="mt-5 w-full bg-[#4D9699] text-white rounded-full py-3 font-bold shadow-md hover:bg-[#3b7a7c] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
-              >
-                Make a Payment
-              </button>
-              <p className="text-sm text-gray-400 text-center mt-3 cursor-pointer hover:text-[#4D9699] transition-colors">
-                View Payment History
-              </p>
             </div>
 
             {/* Health & Safety */}
@@ -554,36 +530,61 @@ export default function ParentDashboard() {
               </div>
             )}
 
-            {/* Attendance */}
+            {/* Tuition & Billing */}
             <div className={CARD}>
               <h2 className="text-xl font-bold text-[#2D3436] mb-1">
-                Attendance
+                Tuition & Billing
               </h2>
               <p className="text-xs text-gray-400 mb-5">
-                Days present this month
+                Current account balance
               </p>
 
-              {Object.keys(attendanceSummary).length === 0 ? (
-                <p className="text-sm text-gray-400 italic">
-                  No attendance data yet.
+              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">
+                Current Balance
+              </p>
+              <div className="flex items-center gap-3 my-2">
+                <p className="text-4xl font-extrabold text-[#2D3436]">
+                  ₹{billingOverview.totalPending.toLocaleString("en-IN")}
                 </p>
-              ) : (
-                <div className="space-y-3">
-                  {Object.values(attendanceSummary).map((summary, idx) => (
+                {billingOverview.totalPending > 0 ? (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+                    Payment Due
+                  </span>
+                ) : (
+                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600">
+                    All Paid Up
+                  </span>
+                )}
+              </div>
+
+              {billingOverview.pending.length > 0 && (
+                <div className="mt-3 space-y-1.5">
+                  {billingOverview.pending.slice(0, 2).map((invoice) => (
                     <div
-                      key={idx}
-                      className="flex items-center justify-between bg-gray-50 rounded-2xl px-4 py-3 border border-gray-100"
+                      key={invoice._id}
+                      className="flex flex-wrap justify-between items-center gap-2 text-xs bg-gray-50 rounded-xl px-3 py-2 border border-gray-100"
                     >
-                      <p className="font-semibold text-[#2D3436] text-sm">
-                        {summary.childName}
-                      </p>
-                      <span className="rounded-full bg-emerald-100 px-4 py-1.5 text-sm font-bold text-emerald-700">
-                        {summary.daysPresent} days
+                      <span className="text-gray-500 truncate max-w-[60%]">
+                        {invoice.childId?.name} — {invoice.description}
+                      </span>
+                      <span className="font-bold text-[#2D3436]">
+                        ₹{invoice.amount}
                       </span>
                     </div>
                   ))}
                 </div>
               )}
+
+              <button
+                onClick={() => handlePayment(billingOverview.totalPending)}
+                disabled={billingOverview.totalPending === 0}
+                className="mt-5 w-full bg-[#4D9699] text-white rounded-full py-3 font-bold shadow-md hover:bg-[#3b7a7c] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              >
+                Make a Payment
+              </button>
+              <p className="text-sm text-gray-400 text-center mt-3 cursor-pointer hover:text-[#4D9699] transition-colors">
+                View Payment History
+              </p>
             </div>
           </div>
         </div>

@@ -23,6 +23,8 @@ export default function Hero() {
   const [isLoading, setIsLoading] = useState(false);
   const [submitStatus, setSubmitStatus] = useState(null); // "success", "error", or null
 
+  const todayDate = new Date().toISOString().split("T")[0];
+
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
@@ -216,6 +218,7 @@ export default function Hero() {
                 <input
                   type="date"
                   name="requestedDate"
+                  min={todayDate}
                   value={formData.requestedDate}
                   onChange={handleInputChange}
                   className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#4D9699]"

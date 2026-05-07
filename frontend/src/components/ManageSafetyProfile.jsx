@@ -114,12 +114,6 @@ const ManageSafetyProfile = ({ child, onSave }) => {
     setAuthorizedPickups(authorizedPickups.filter((_, i) => i !== index));
   };
 
-  const togglePhotoIdChecked = (index) => {
-    const updated = [...authorizedPickups];
-    updated[index].photoIdChecked = !updated[index].photoIdChecked;
-    setAuthorizedPickups(updated);
-  };
-
   // Save handler
   const handleSave = async () => {
     setSaving(true);
@@ -181,7 +175,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
             />
             <button
               onClick={addAllergy}
-              className="px-5 py-2 bg-red-500 text-white rounded-2xl font-semibold hover:bg-red-600 transition"
+              className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"
             >
               Add
             </button>
@@ -192,12 +186,12 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               {allergies.map((allergy, index) => (
                 <div
                   key={index}
-                  className="bg-red-50 text-red-600 px-3 py-1 rounded-full text-sm flex items-center gap-2 border border-red-200"
+                  className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                 >
                   {allergy}
                   <button
                     onClick={() => removeAllergy(index)}
-                    className="text-red-600 hover:text-red-800 font-bold cursor-pointer"
+                    className="text-amber-700 hover:text-amber-900 font-bold cursor-pointer"
                   >
                     ✕
                   </button>
@@ -226,7 +220,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
             />
             <button
               onClick={addDietaryRestriction}
-              className="px-5 py-2 bg-orange-500 text-white rounded-2xl font-semibold hover:bg-orange-600 transition"
+              className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors"
             >
               Add
             </button>
@@ -237,12 +231,12 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               {dietaryRestrictions.map((restriction, index) => (
                 <div
                   key={index}
-                  className="bg-orange-50 text-orange-600 px-3 py-1 rounded-full text-sm flex items-center gap-2 border border-orange-200"
+                  className="bg-amber-50 text-amber-700 border border-amber-200 px-3 py-1 rounded-full text-sm flex items-center gap-2"
                 >
                   {restriction}
                   <button
                     onClick={() => removeDietaryRestriction(index)}
-                    className="text-orange-600 hover:text-orange-800 font-bold cursor-pointer"
+                    className="text-amber-700 hover:text-amber-900 font-bold cursor-pointer"
                   >
                     ✕
                   </button>
@@ -260,13 +254,13 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               <span className="font-bold">Medications</span>
             </div>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div className="flex flex-col md:flex-row gap-3 w-full mb-4">
             <input
               type="text"
               placeholder="Medication Name"
               value={medForm.name}
               onChange={(e) => setMedForm({ ...medForm, name: e.target.value })}
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
@@ -275,7 +269,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setMedForm({ ...medForm, dosage: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             <input
               type="text"
@@ -284,12 +278,12 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setMedForm({ ...medForm, timeToAdminister: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <button
             onClick={addMedication}
-            className="w-full px-5 py-2 bg-blue-500 text-white rounded-2xl font-semibold hover:bg-blue-600 transition"
+            className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors w-full"
           >
             Add Medication
           </button>
@@ -327,7 +321,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               <span className="font-bold">Emergency Contacts</span>
             </div>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div className="flex flex-col md:flex-row gap-3 w-full mb-4">
             <input
               type="text"
               placeholder="Name"
@@ -335,7 +329,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setEmergencyForm({ ...emergencyForm, name: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <input
               type="text"
@@ -347,7 +341,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
                   relationship: e.target.value,
                 })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
             <input
               type="tel"
@@ -356,12 +350,12 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setEmergencyForm({ ...emergencyForm, phone: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-purple-500"
             />
           </div>
           <button
             onClick={addEmergencyContact}
-            className="w-full px-5 py-2 bg-purple-500 text-white rounded-2xl font-semibold hover:bg-purple-600 transition"
+            className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors w-full"
           >
             Add Emergency Contact
           </button>
@@ -401,7 +395,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               <span className="font-bold">Authorized Pickups</span>
             </div>
           </h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-4">
+          <div className="flex flex-col md:flex-row gap-3 w-full mb-4">
             <input
               type="text"
               placeholder="Name"
@@ -409,7 +403,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setPickupForm({ ...pickupForm, name: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
             <input
               type="text"
@@ -421,7 +415,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
                   relationship: e.target.value,
                 })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
             <input
               type="tel"
@@ -430,12 +424,12 @@ const ManageSafetyProfile = ({ child, onSave }) => {
               onChange={(e) =>
                 setPickupForm({ ...pickupForm, phone: e.target.value })
               }
-              className="px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
+              className="w-full px-4 py-2 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-teal-500"
             />
           </div>
           <button
             onClick={addAuthorizedPickup}
-            className="w-full px-5 py-2 bg-teal-500 text-white rounded-2xl font-semibold hover:bg-teal-600 transition"
+            className="px-4 py-2 text-sm font-medium text-teal-700 bg-teal-50 border border-teal-200 hover:bg-teal-100 rounded-lg transition-colors w-full"
           >
             Add Authorized Pickup
           </button>
@@ -463,18 +457,17 @@ const ManageSafetyProfile = ({ child, onSave }) => {
                       ✕
                     </button>
                   </div>
-                  <button
-                    onClick={() => togglePhotoIdChecked(index)}
-                    className={`text-xs font-semibold px-3 py-1 rounded-full transition ${
+                  <span
+                    className={`inline-block text-xs font-semibold px-3 py-1 rounded-full ${
                       pickup.photoIdChecked
                         ? "bg-emerald-100 text-emerald-700"
-                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                        : "bg-gray-100 text-gray-600"
                     }`}
                   >
                     {pickup.photoIdChecked
                       ? "✓ ID Verified"
                       : "ID Not Verified"}
-                  </button>
+                  </span>
                 </div>
               ))}
             </div>
@@ -492,7 +485,7 @@ const ManageSafetyProfile = ({ child, onSave }) => {
         <button
           onClick={handleSave}
           disabled={saving}
-          className="w-full bg-[#4D9699] text-white rounded-full py-3 font-semibold text-lg hover:bg-opacity-90 disabled:opacity-60 disabled:cursor-not-allowed transition"
+          className="w-full py-3 bg-teal-600 hover:bg-teal-700 text-white font-semibold rounded-xl mt-6 transition disabled:opacity-60 disabled:cursor-not-allowed"
         >
           {saving ? "Saving..." : "Save Profile Updates"}
         </button>
