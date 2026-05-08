@@ -7,86 +7,29 @@ import ManageSafetyProfile from "../../components/ManageSafetyProfile";
 import ManageBasicInfo from "../../components/ManageBasicInfo";
 import {
   Utensils,
-  Moon,
-  HeartPulse,
   LogOut,
-  Smile,
-  Palette,
-  Music,
-  Bell,
   AlertCircle,
   Pill,
-  Phone,
   ShieldCheck,
   Leaf,
+  Clock,
+  Phone,
+  MessageCircle,
   X,
 } from "lucide-react";
 
 const CARD =
   "bg-white rounded-[2rem] p-5 md:p-6 shadow-sm border border-gray-100";
 
-// Badge pill colors for the category tag (top-right of each card)
-const categoryColors = {
-  Meal: "bg-amber-100 text-amber-700",
-  Nap: "bg-indigo-100 text-indigo-700",
-  Activity: "bg-teal-100 text-teal-700",
-  Health: "bg-red-100 text-red-700",
-  default: "bg-blue-100 text-blue-700",
+const categoryStyles = {
+  Food: "bg-orange-50 text-orange-800 border-orange-100",
+  Meal: "bg-orange-50 text-orange-800 border-orange-100", // Fallback for existing logs
+  Nap: "bg-slate-100 text-slate-700 border-slate-200",
+  Learning: "bg-teal-50 text-teal-800 border-teal-200",
+  Play: "bg-emerald-50 text-emerald-800 border-emerald-100",
+  Health: "bg-rose-50 text-rose-800 border-rose-100",
+  Checkout: "bg-blue-50 text-blue-800 border-blue-100",
 };
-
-// Timeline icon circle: background color + icon component per category
-const ACTIVITY_META = {
-  Meal: {
-    bg: "bg-amber-100",
-    icon: <Utensils size={18} className="text-amber-600" />,
-  },
-  Nap: {
-    bg: "bg-indigo-100",
-    icon: <Moon size={18} className="text-indigo-600" />,
-  },
-  Health: {
-    bg: "bg-red-100",
-    icon: <HeartPulse size={18} className="text-red-600" />,
-  },
-  Checkout: {
-    bg: "bg-rose-100",
-    icon: <LogOut size={18} className="text-rose-600" />,
-  },
-  Art: {
-    bg: "bg-pink-100",
-    icon: <Palette size={18} className="text-pink-600" />,
-  },
-  Music: {
-    bg: "bg-purple-100",
-    icon: <Music size={18} className="text-purple-600" />,
-  },
-  Social: {
-    bg: "bg-green-100",
-    icon: <Smile size={18} className="text-green-600" />,
-  },
-  Activity: {
-    bg: "bg-teal-100",
-    icon: <Smile size={18} className="text-teal-600" />,
-  },
-  default: {
-    bg: "bg-teal-100",
-    icon: <Bell size={18} className="text-teal-600" />,
-  },
-};
-
-function getActivityMeta(activity) {
-  if (
-    activity.title?.includes("Signed Out") ||
-    activity.description?.includes("Signed Out") ||
-    activity.category === "Checkout"
-  ) {
-    return {
-      bg: "bg-blue-100",
-      icon: <LogOut size={18} className="text-blue-600" />,
-    };
-  }
-  return ACTIVITY_META[activity.category] ?? ACTIVITY_META.default;
-}
 
 export default function ParentDashboard() {
   const { user, logout } = useAuth();
@@ -227,12 +170,20 @@ export default function ParentDashboard() {
   // Use first child for the safety card quick-view
   const primaryChild = children[0];
 
+  const todaysActivities = recentActivities.filter((activity) => {
+    const activityDate = new Date(
+      activity.date || activity.timestamp,
+    ).toDateString();
+    const todayDate = new Date().toDateString();
+    return activityDate === todayDate;
+  });
+
   return (
     <div className="min-h-screen bg-[#FDFBF7] p-4 md:p-8 font-sans">
       {/* Modal Overlay for Safety Profile */}
       {selectedChildForSafety && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-0 md:p-4">
-          <div className="w-full h-full md:w-auto md:h-auto md:max-w-3xl max-h-[100dvh] md:max-h-[85vh] bg-white md:rounded-2xl shadow-xl overflow-y-auto relative p-6 md:p-8 custom-scrollbar">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm transition-opacity p-0 md:p-4 overflow-hidden">
+          <div className="w-full h-full md:w-full md:max-w-3xl max-h-[100dvh] md:max-h-[85vh] bg-white md:rounded-2xl shadow-xl overflow-hidden relative flex flex-col">
             {/* Close Button */}
             <button
               onClick={() => setSelectedChildForSafety(null)}
@@ -240,19 +191,21 @@ export default function ParentDashboard() {
             >
               <X size={24} />
             </button>
-            <ManageBasicInfo
-              child={selectedChildForSafety}
-              onSave={() => {
-                fetchFamily(true);
-              }}
-            />
-            <ManageSafetyProfile
-              child={selectedChildForSafety}
-              onSave={() => {
-                setSelectedChildForSafety(null);
-                fetchFamily(true);
-              }}
-            />
+            <div className="flex-1 overflow-y-auto scrollbar-hide px-6 py-4 md:px-8 md:py-6 space-y-6">
+              <ManageBasicInfo
+                child={selectedChildForSafety}
+                onSave={() => {
+                  fetchFamily(true);
+                }}
+              />
+              <ManageSafetyProfile
+                child={selectedChildForSafety}
+                onSave={() => {
+                  setSelectedChildForSafety(null);
+                  fetchFamily(true);
+                }}
+              />
+            </div>
           </div>
         </div>
       )}
@@ -316,7 +269,7 @@ export default function ParentDashboard() {
                   Today's Updates
                 </h2>
                 <span className="text-xs font-bold bg-teal-50 text-[#4D9699] rounded-full px-3 py-1 border border-teal-100">
-                  {recentActivities.length} updates
+                  {todaysActivities.length} updates
                 </span>
               </div>
               <p className="text-left text-sm text-gray-500">
@@ -324,7 +277,7 @@ export default function ParentDashboard() {
               </p>
             </div>
 
-            {recentActivities.length === 0 ? (
+            {todaysActivities.length === 0 ? (
               <div className="flex-1 flex flex-col items-center justify-center py-16 text-center">
                 <div className="flex justify-center mb-3 text-emerald-400">
                   <Leaf size={48} />
@@ -334,18 +287,15 @@ export default function ParentDashboard() {
                 </p>
               </div>
             ) : (
-              <div className="max-h-[600px] overflow-y-auto pr-1 custom-scrollbar">
-                {recentActivities.map((activity, idx) => {
-                  const { bg, icon } = getActivityMeta(activity);
-                  const isLast = idx === recentActivities.length - 1;
+              <div className="max-h-[600px] overflow-y-auto pr-1 scrollbar-hide">
+                {todaysActivities.map((activity, idx) => {
+                  const isLast = idx === todaysActivities.length - 1;
                   return (
                     <div key={activity._id} className="flex gap-4">
                       {/* Timeline: icon circle + connecting line */}
                       <div className="flex flex-col items-center">
-                        <div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center z-10 shrink-0 ${bg}`}
-                        >
-                          {icon}
+                        <div className="w-10 h-10 rounded-full bg-gray-50 border border-gray-100 flex items-center justify-center shrink-0 z-10">
+                          <Clock className="w-5 h-5 text-gray-400" />
                         </div>
                         {!isLast && (
                           <div className="w-0 flex-1 border-l-2 border-gray-100 my-1" />
@@ -354,30 +304,25 @@ export default function ParentDashboard() {
 
                       {/* Activity card */}
                       <div className="flex-1 bg-gray-50 rounded-2xl p-4 mb-4 border border-gray-100">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-bold text-[#2D3436] text-sm">
-                              {activity.childId?.name}
-                            </p>
-                            <p className="text-sm font-semibold text-[#4D9699] mt-0.5">
-                              {activity.title}
-                            </p>
-                            <p className="text-sm text-gray-500 mt-1 leading-relaxed">
-                              {activity.description}
-                            </p>
-                          </div>
+                        <div className="flex justify-between items-start gap-2">
+                          <p className="text-base font-bold text-slate-800 mt-0.5">
+                            {activity.description || "General Update"}
+                          </p>
                           <span
-                            className={`flex-shrink-0 text-xs font-bold rounded-full px-3 py-1 ${
-                              categoryColors[activity.category] ||
-                              categoryColors.default
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-widest border flex-shrink-0 ${
+                              categoryStyles[activity.category] ||
+                              "bg-gray-50 text-gray-600 border-gray-100"
                             }`}
                           >
                             {activity.category}
                           </span>
                         </div>
                         <p className="text-xs text-gray-400 mt-2">
-                          {new Date(activity.date).toLocaleString()} · by{" "}
-                          {activity.teacherId?.name}
+                          {new Date(activity.date).toLocaleTimeString([], {
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })}{" "}
+                          • by {activity.teacherId?.name}
                         </p>
                       </div>
                     </div>
@@ -433,53 +378,86 @@ export default function ParentDashboard() {
                   </span>
                 </div>
 
-                {/* Allergies */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <AlertCircle size={18} className="text-red-500" />
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Allergies
-                    </p>
-                  </div>
-                  {primaryChild.allergies?.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {primaryChild.allergies.map((a, i) => (
-                        <span
-                          key={i}
-                          className="bg-red-50 text-red-600 rounded-full px-3 py-1 text-xs font-bold border border-red-100"
-                        >
-                          {a}
-                        </span>
-                      ))}
+                <div className="flex flex-wrap gap-6 mb-6">
+                  {/* Allergies */}
+                  <div className="flex-1 min-w-[120px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <AlertCircle size={18} className="text-red-500" />
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Allergies
+                      </p>
                     </div>
-                  ) : (
-                    <p className="text-xs text-gray-400 italic">None on file</p>
-                  )}
+                    {primaryChild.allergies?.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {primaryChild.allergies.map((a, i) => (
+                          <span
+                            key={i}
+                            className="bg-red-50 text-red-600 rounded-full px-3 py-1 text-xs font-bold border border-red-100"
+                          >
+                            {a}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 italic">
+                        None on file
+                      </p>
+                    )}
+                  </div>
+
+                  {/* Dietary */}
+                  <div className="flex-1 min-w-[120px]">
+                    <div className="flex items-center gap-2 mb-2">
+                      <Utensils size={18} className="text-orange-500" />
+                      <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+                        Dietary
+                      </p>
+                    </div>
+                    {primaryChild.dietaryRestrictions?.length > 0 ? (
+                      <div className="flex flex-wrap gap-2">
+                        {primaryChild.dietaryRestrictions.map((d, i) => (
+                          <span
+                            key={i}
+                            className="bg-orange-50 text-orange-600 rounded-full px-3 py-1 text-xs font-bold border border-orange-100"
+                          >
+                            {d}
+                          </span>
+                        ))}
+                      </div>
+                    ) : (
+                      <p className="text-xs text-gray-400 italic">
+                        None on file
+                      </p>
+                    )}
+                  </div>
                 </div>
 
-                {/* Dietary */}
-                <div className="mb-4">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Utensils size={18} className="text-orange-500" />
-                    <p className="text-xs font-bold text-gray-400 uppercase tracking-wider">
-                      Dietary
-                    </p>
-                  </div>
-                  {primaryChild.dietaryRestrictions?.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {primaryChild.dietaryRestrictions.map((d, i) => (
-                        <span
-                          key={i}
-                          className="bg-orange-50 text-orange-600 rounded-full px-3 py-1 text-xs font-bold border border-orange-100"
-                        >
-                          {d}
-                        </span>
-                      ))}
+                {/* Medications */}
+                {primaryChild.medications &&
+                  primaryChild.medications.length > 0 && (
+                    <div className="mb-4">
+                      <div className="flex items-center gap-2 text-[10px] font-bold uppercase tracking-wider text-slate-400 mt-4 mb-2">
+                        <Pill size={18} className="text-blue-500" />
+                        <p>Medications</p>
+                      </div>
+                      <div>
+                        {primaryChild.medications.map((med, index) => (
+                          <div
+                            key={index}
+                            className="p-3 bg-blue-50/50 border border-blue-100 rounded-xl mb-2"
+                          >
+                            <p className="text-sm font-semibold text-slate-700">
+                              {med.name}
+                            </p>
+                            <p className="text-xs text-slate-500 mt-0.5">
+                              Dosage: {med.dosage} | Time:{" "}
+                              {med.timeToAdminister}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  ) : (
-                    <p className="text-xs text-gray-400 italic">None on file</p>
                   )}
-                </div>
 
                 {/* Authorized Pickups */}
                 <div className="mb-5">
@@ -490,14 +468,37 @@ export default function ParentDashboard() {
                     </p>
                   </div>
                   {primaryChild.authorizedPickups?.length > 0 ? (
-                    <div className="space-y-1">
+                    <div className="space-y-2 mt-3">
                       {primaryChild.authorizedPickups.map((p, i) => (
-                        <p key={i} className="text-sm text-[#2D3436]">
-                          · {p.name}{" "}
-                          <span className="text-gray-400 text-xs">
-                            ({p.relationship})
-                          </span>
-                        </p>
+                        <div
+                          key={i}
+                          className="flex items-center justify-between p-3 bg-gray-50 border border-gray-100 rounded-xl"
+                        >
+                          <div className="flex flex-col">
+                            <p className="text-sm font-bold text-[#2D3436]">
+                              {p.name}{" "}
+                              <span className="text-xs text-gray-500 font-normal">
+                                • {p.relationship}
+                              </span>
+                            </p>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <a
+                              href={`tel:${p.phone}`}
+                              className="p-2 bg-teal-50 text-teal-600 rounded-full hover:bg-teal-100 transition-colors"
+                              title="Call"
+                            >
+                              <Phone size={16} />
+                            </a>
+                            <a
+                              href={`sms:${p.phone}`}
+                              className="p-2 bg-teal-50 text-teal-600 rounded-full hover:bg-teal-100 transition-colors"
+                              title="Message"
+                            >
+                              <MessageCircle size={16} />
+                            </a>
+                          </div>
+                        </div>
                       ))}
                     </div>
                   ) : (

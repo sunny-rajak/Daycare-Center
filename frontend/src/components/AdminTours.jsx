@@ -12,7 +12,6 @@ export default function AdminTours() {
   const [editNotes, setEditNotes] = useState("");
 
   useEffect(() => {
-    console.log("AdminTours component mounted, fetching tours...");
     fetchTours();
   }, []);
 
@@ -21,7 +20,6 @@ export default function AdminTours() {
       setLoading(true);
       setError(null);
       const response = await getAllTours();
-      console.log("Tours response:", response);
 
       let toursData = [];
       if (response?.data && Array.isArray(response.data)) {
@@ -30,7 +28,6 @@ export default function AdminTours() {
         toursData = response;
       }
 
-      console.log("Tours data:", toursData);
       setTours(toursData);
     } catch (err) {
       console.error("Error fetching tours:", err);
