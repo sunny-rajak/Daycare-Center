@@ -26,6 +26,7 @@ export default function Billing() {
     amount: "",
     paymentMethod: "Cash",
     status: "Paid",
+    date: new Date().toISOString().split("T")[0],
   });
 
   useEffect(() => {
@@ -192,8 +193,10 @@ export default function Billing() {
 
   const handleSubmit = async (event) => {
     event.preventDefault();
-    if (!formData.parentId || !formData.amount) {
-      setError("Please choose a parent and enter a valid amount.");
+    if (!formData.parentId || !formData.amount || !formData.date) {
+      setError(
+        "Please choose a parent, enter a valid amount, and select a date.",
+      );
       return;
     }
 
@@ -206,6 +209,7 @@ export default function Billing() {
         amount: Number(formData.amount),
         paymentMethod: formData.paymentMethod,
         status: formData.status,
+        date: formData.date,
       });
 
       const refreshedPayments = await getAllPayments();
@@ -217,6 +221,7 @@ export default function Billing() {
         amount: "",
         paymentMethod: "Cash",
         status: "Paid",
+        date: new Date().toISOString().split("T")[0],
       });
       setParentSearch("");
       setModalOpen(false);
@@ -529,7 +534,7 @@ export default function Billing() {
                 </select>
               </div>
 
-              <div className="grid gap-4 md:grid-cols-2">
+              <div className="grid gap-4 md:grid-cols-3">
                 <div>
                   <label className="block text-sm font-semibold text-gray-600 mb-1.5">
                     Amount
@@ -542,6 +547,18 @@ export default function Billing() {
                     min="0"
                     step="0.01"
                     className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-gray-50/50"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-semibold text-gray-600 mb-1.5">
+                    Date
+                  </label>
+                  <input
+                    type="date"
+                    value={formData.date}
+                    onChange={(e) => handleFormChange("date", e.target.value)}
+                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 focus:ring-teal-500/20 focus:border-teal-500 text-[#2D3436] bg-white"
                   />
                 </div>
 

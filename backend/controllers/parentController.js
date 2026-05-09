@@ -76,14 +76,17 @@ const getMyFamily = async (req, res) => {
       .populate("childId", "name");
 
     const billingOverview = {
-      pending: invoices.filter((inv) => inv.status === "Pending"),
+      pending: invoices.filter((inv) =>
+        ["Pending", "Overdue"].includes(inv.status),
+      ),
       paid: invoices.filter((inv) => inv.status === "Paid"),
       totalPending: invoices
-        .filter((inv) => inv.status === "Pending")
+        .filter((inv) => ["Pending", "Overdue"].includes(inv.status))
         .reduce((sum, inv) => sum + inv.amount, 0),
       totalPaid: invoices
         .filter((inv) => inv.status === "Paid")
         .reduce((sum, inv) => sum + inv.amount, 0),
+      hasOverdue: invoices.some((inv) => inv.status === "Overdue"),
     };
 
     res.json({
@@ -246,7 +249,7 @@ const getDashboardData = async (req, res) => {
 
     const outstandingInvoices = await Payment.find({
       parentId,
-      status: "Pending",
+      status: { $in: ["Pending", "Overdue"] },
     })
       .sort({ date: -1 })
       .populate("childId", "name");

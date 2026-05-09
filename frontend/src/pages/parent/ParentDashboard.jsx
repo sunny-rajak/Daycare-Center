@@ -39,6 +39,8 @@ export default function ParentDashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedChildForSafety, setSelectedChildForSafety] = useState(null);
+  const [paymentMessage, setPaymentMessage] = useState({ type: "", text: "" });
+  const [showHistoryModal, setShowHistoryModal] = useState(false);
 
   const fetchFamily = async (isRefresh = false) => {
     if (!isRefresh) setLoading(true);
@@ -61,6 +63,7 @@ export default function ParentDashboard() {
   }, []);
 
   const handlePayment = async (amountToPay) => {
+    setPaymentMessage({ type: "", text: "" });
     try {
       const token = user?.token || localStorage.getItem("token");
       const response = await axios.post(
@@ -93,24 +96,40 @@ export default function ParentDashboard() {
               verifyResponse.data.success ||
               verifyResponse.data.status === "success"
             ) {
-              alert("Payment Verified and Successful!");
+              setPaymentMessage({
+                type: "success",
+                text: "Payment verified and successful!",
+              });
+              setTimeout(() => setPaymentMessage({ type: "", text: "" }), 5000);
               fetchFamily(true);
             } else {
-              alert("Payment verification failed.");
+              setPaymentMessage({
+                type: "error",
+                text: "Payment verification failed.",
+              });
             }
           } catch {
-            alert("Payment verification failed.");
+            setPaymentMessage({
+              type: "error",
+              text: "Payment verification failed.",
+            });
           }
         },
       };
 
       const paymentWindow = new window.Razorpay(options);
       paymentWindow.on("payment.failed", () =>
-        alert("Payment failed or cancelled."),
+        setPaymentMessage({
+          type: "error",
+          text: "Payment failed or cancelled.",
+        }),
       );
       paymentWindow.open();
     } catch {
-      alert("Could not initiate payment. Please try again.");
+      setPaymentMessage({
+        type: "error",
+        text: "Could not initiate payment. Please try again.",
+      });
     }
   };
 
@@ -533,29 +552,41 @@ export default function ParentDashboard() {
 
             {/* Tuition & Billing */}
             <div className={CARD}>
-              <h2 className="text-xl font-bold text-[#2D3436] mb-1">
-                Tuition & Billing
-              </h2>
-              <p className="text-xs text-gray-400 mb-5">
-                Current account balance
-              </p>
+              <div className="flex justify-between items-start mb-5">
+                <div>
+                  <h2 className="text-xl font-bold text-[#2D3436]">
+                    Tuition & Billing
+                  </h2>
+                  <p className="text-[10px] text-slate-400 mt-1">
+                    Last updated: {today}
+                  </p>
+                </div>
+              </div>
 
-              <p className="text-sm text-gray-500 font-semibold uppercase tracking-wider">
-                Current Balance
-              </p>
-              <div className="flex items-center gap-3 my-2">
-                <p className="text-4xl font-extrabold text-[#2D3436]">
-                  ₹{billingOverview.totalPending.toLocaleString("en-IN")}
+              <div className="mb-2">
+                <p className="text-[10px] font-bold tracking-wider text-slate-500 mb-1 uppercase">
+                  Current Balance
                 </p>
-                {billingOverview.totalPending > 0 ? (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
-                    Payment Due
-                  </span>
-                ) : (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600">
-                    All Paid Up
-                  </span>
-                )}
+                <div className="flex items-center gap-3">
+                  <p className="text-4xl font-extrabold text-[#2D3436]">
+                    ₹{billingOverview.totalPending.toLocaleString("en-IN")}
+                  </p>
+                  {billingOverview.totalPending > 0 ? (
+                    billingOverview.hasOverdue ? (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-red-100 text-red-600">
+                        Payment Overdue
+                      </span>
+                    ) : (
+                      <span className="px-3 py-1 rounded-full text-xs font-bold bg-orange-100 text-orange-600">
+                        Payment Due
+                      </span>
+                    )
+                  ) : (
+                    <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-100 text-green-600">
+                      All Paid Up
+                    </span>
+                  )}
+                </div>
               </div>
 
               {billingOverview.pending.length > 0 && (
@@ -563,33 +594,119 @@ export default function ParentDashboard() {
                   {billingOverview.pending.slice(0, 2).map((invoice) => (
                     <div
                       key={invoice._id}
-                      className="flex flex-wrap justify-between items-center gap-2 text-xs bg-gray-50 rounded-xl px-3 py-2 border border-gray-100"
+                      className="flex flex-wrap justify-between items-center gap-2 text-xs bg-gray-50 rounded-xl px-3 py-2.5 border border-gray-100"
                     >
                       <span className="text-gray-500 truncate max-w-[60%]">
                         {invoice.childId?.name} — {invoice.description}
                       </span>
-                      <span className="font-bold text-[#2D3436]">
-                        ₹{invoice.amount}
-                      </span>
+                      <div className="flex items-center gap-2">
+                        {invoice.status === "Overdue" ? (
+                          <span
+                            className="w-2 h-2 rounded-full bg-red-500"
+                            title="Overdue"
+                          ></span>
+                        ) : (
+                          <span
+                            className="w-2 h-2 rounded-full bg-orange-400"
+                            title="Pending"
+                          ></span>
+                        )}
+                        <span className="font-bold text-[#2D3436]">
+                          ₹{invoice.amount}
+                        </span>
+                      </div>
                     </div>
                   ))}
+                </div>
+              )}
+
+              {paymentMessage.text && (
+                <div
+                  className={`mt-4 p-3 rounded-xl text-sm font-semibold text-center border animate-in fade-in duration-300 ${
+                    paymentMessage.type === "success"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-100"
+                      : "bg-red-50 text-red-700 border-red-100"
+                  }`}
+                >
+                  {paymentMessage.text}
                 </div>
               )}
 
               <button
                 onClick={() => handlePayment(billingOverview.totalPending)}
                 disabled={billingOverview.totalPending === 0}
-                className="mt-5 w-full bg-[#4D9699] text-white rounded-full py-3 font-bold shadow-md hover:bg-[#3b7a7c] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+                className="mt-5 w-full bg-[#4D9699] text-white rounded-full py-3 font-bold shadow-sm hover:shadow-md hover:bg-[#3b7a7c] transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Make a Payment
               </button>
-              <p className="text-sm text-gray-400 text-center mt-3 cursor-pointer hover:text-[#4D9699] transition-colors">
+              <p
+                onClick={() => setShowHistoryModal(true)}
+                className="text-sm text-gray-400 text-center mt-3 cursor-pointer hover:text-[#4D9699] transition-colors"
+              >
                 View Payment History
               </p>
             </div>
           </div>
         </div>
       </div>
+
+      {/* Payment History Modal */}
+      {showHistoryModal && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/40 backdrop-blur-sm transition-opacity p-0 md:p-4 overflow-hidden">
+          <div className="relative w-full h-full md:h-auto md:w-full md:max-w-md mx-auto bg-white md:rounded-3xl shadow-2xl flex flex-col max-h-[100dvh] md:max-h-[85vh] overflow-hidden">
+            <div className="flex items-center justify-between p-5 md:p-6 border-b border-gray-100 shrink-0">
+              <h2 className="text-xl md:text-2xl font-bold text-[#2D3436]">
+                Payment History
+              </h2>
+              <button
+                onClick={() => setShowHistoryModal(false)}
+                className="p-2 text-gray-400 hover:text-red-500 bg-gray-50 hover:bg-red-50 rounded-full transition-colors"
+              >
+                <X size={24} />
+              </button>
+            </div>
+
+            <div className="flex-1 overflow-y-auto scrollbar-hide p-6 md:p-8 space-y-4">
+              {billingOverview.paid && billingOverview.paid.length > 0 ? (
+                billingOverview.paid.map((invoice) => (
+                  <div
+                    key={invoice._id}
+                    className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100"
+                  >
+                    <div>
+                      <p className="font-semibold text-[#2D3436] text-sm">
+                        {new Date(invoice.date).toLocaleDateString("en-US", {
+                          month: "long",
+                          day: "numeric",
+                          year: "numeric",
+                        })}
+                      </p>
+                      <p className="text-xs text-gray-500 mt-1">
+                        {invoice.childId?.name} —{" "}
+                        {invoice.description || "Tuition"}
+                      </p>
+                    </div>
+                    <div className="text-right">
+                      <p className="font-bold text-[#2D3436] mb-1">
+                        ₹{invoice.amount?.toLocaleString("en-IN")}
+                      </p>
+                      <span className="text-[10px] bg-emerald-50 text-emerald-600 px-2 py-1 rounded-full font-bold uppercase tracking-wider">
+                        Paid
+                      </span>
+                    </div>
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-8 bg-gray-50 rounded-2xl border border-gray-100">
+                  <p className="text-gray-500 font-medium">
+                    No payment history found yet.
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

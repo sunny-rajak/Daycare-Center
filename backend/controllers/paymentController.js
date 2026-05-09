@@ -310,7 +310,7 @@ const verifyRazorpayPayment = async (req, res) => {
       // Find their oldest pending invoice and update it to 'Paid'
       if (parentRecordId) {
         await Payment.findOneAndUpdate(
-          { parentId: parentRecordId, status: "Pending" },
+          { parentId: parentRecordId, status: { $in: ["Pending", "Overdue"] } },
           {
             $set: {
               status: "Paid",
