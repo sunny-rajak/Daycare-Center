@@ -1,3 +1,6 @@
+// Import local assets
+import aboutImg from "../assets/images/about-image.avif";
+
 export default function AboutUs() {
   return (
     <section
@@ -10,9 +13,10 @@ export default function AboutUs() {
           <div className="aspect-square rounded-[3rem] bg-teal-50 p-4 shadow-sm transform -rotate-3 hover:rotate-0 transition-transform duration-500">
             <div className="w-full h-full rounded-[2.5rem] overflow-hidden bg-gray-200">
               <img
-                src="https://images.unsplash.com/photo-1588075592446-265fd1e6e76f?auto=format&fit=crop&q=80&w=1000"
+                src={aboutImg}
                 alt="Happy kids learning"
                 className="w-full h-full object-cover"
+                loading="lazy"
               />
             </div>
           </div>
