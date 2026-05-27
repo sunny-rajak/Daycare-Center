@@ -58,7 +58,7 @@ A comprehensive, full-stack daycare management platform designed to streamline a
 ### 1. Clone the repository
 
 ```bash
-git clone <your-repo-url>
+git clone https://github.com/sunny-rajak/Daycare-Center.git
 cd DayCare
 ```
 
